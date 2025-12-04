@@ -116,7 +116,6 @@ export class AppService {
       console.error('Error connecting to Redis:', error);
       return error.message;
     } finally {
-      // Remove the test key
       await redis.del('healthCheck');
       // Close the Redis connection
       redis.quit();
