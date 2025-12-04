@@ -1,0 +1,198 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'nestjs-prisma';
+import { TriggerQueueStatus, TriggerStatus } from '@prisma/client';
+import { type CreateTriggerEventQueueDto } from '../../dto/trigger-event-manager.dto';
+import type { EventKeys } from 'src/types/triggers';
+import { PinoLogger } from 'nestjs-pino';
+/**
+ * Manages trigger event queue operations, providing reusable methods for creating and handling trigger events.
+ */
+@Injectable()
+export class TriggerEventManager {
+
+    constructor(private readonly prisma: PrismaService, private readonly logger: PinoLogger,) {
+        this.logger.setContext(TriggerEventManager.name);
+    }
+
+    /**
+     * Creates trigger event queue entries for a given event key, directly associating with active trigger event configs.
+     * @param params - Parameters for creating the trigger event queue entries
+     * @returns Success status and message
+     */
+    async createTriggerEventQueue({
+        agencyId,
+        userId,
+        contactId,
+        eventKey,
+        payload = {},
+    }: CreateTriggerEventQueueDto): Promise<{ success: boolean; message: string }> {
+        this.logger.info(`Creating trigger event queue for ${eventKey}`, { agencyId, userId, contactId });
+
+        if (!contactId || !userId || !agencyId) {
+            const message = `Missing contactId, userId, or agencyId for event key: ${eventKey}`;
+            this.logger.error(message, { agencyId, userId, contactId });
+            return { success: false, message };
+        }
+
+        try {
+            const triggerEventConfigs = await this.getActiveTriggerEventConfigs(agencyId, userId, eventKey);
+            if (triggerEventConfigs.length === 0) {
+                const message = `No active triggers found for event key: ${eventKey}`;
+                this.logger.warn(message, { agencyId, userId });
+                return { success: false, message };
+            }
+
+            const triggerEventId = await this.getTriggerEventId(eventKey);
+            if (!triggerEventId) {
+                const message = `No trigger event found for key: ${eventKey}`;
+                this.logger.error(message, { agencyId, userId });
+                return { success: false, message };
+            }
+
+            const createdCount = await this.createCacheTriggerEventQueues(
+                this.prisma,
+                triggerEventConfigs,
+                {
+                    agencyId,
+                    userId,
+                    contactId,
+                    eventKey,
+                    triggerEventId,
+                    payload: JSON.stringify({ contactId, userId, agencyId, eventKey, ...payload }),
+                },
+            );
+
+            const message = `${createdCount} trigger event queue${createdCount !== 1 ? 's' : ''} created for ${eventKey}`;
+            this.logger.debug(message, { agencyId, userId, createdCount });
+            return { success: createdCount > 0, message };
+        } catch (error) {
+            const message = this.handleError(error, `Failed to create trigger event queue for ${eventKey}`, {
+                agencyId,
+                userId,
+                contactId,
+            });
+            return { success: false, message };
+        }
+    }
+
+    /**
+     * Creates multiple trigger event queue entries for a batch of events.
+     * @param dtos - Array of trigger event queue parameters
+     */
+    async createTriggerEventQueues(dtos: CreateTriggerEventQueueDto[]): Promise<{ success: boolean; message: string }> {
+        this.logger.info(`Creating ${dtos.length} trigger event queues`);
+
+        let successCount = 0;
+        const errors: string[] = [];
+
+        for (const dto of dtos) {
+            const result = await this.createTriggerEventQueue(dto);
+            if (result.success) {
+                successCount++;
+            } else {
+                errors.push(result.message);
+            }
+        }
+
+        if (errors.length > 0) {
+            const message = `Failed to create ${errors.length} trigger event queue${errors.length !== 1 ? 's' : ''}: ${errors.join('; ')}`;
+            this.logger.error(message);
+            return { success: false, message };
+        }
+
+        const message = `Created ${successCount} trigger event queue${successCount !== 1 ? 's' : ''}`;
+        this.logger.debug(message);
+        return { success: true, message };
+    }
+
+    // Helper Methods (grouped at the bottom)
+
+    /**
+     * Fetches active trigger event configs for a given event key.
+     * @param agencyId - Agency ID
+     * @param userId - User ID
+     * @param eventKey - Event key
+     * @returns Array of active trigger event configs
+     */
+    private async getActiveTriggerEventConfigs(
+        agencyId: bigint,
+        userId: bigint,
+        eventKey: EventKeys,
+    ): Promise<{ id: bigint; triggerEventId: bigint; triggerId: bigint }[]> {
+        return this.prisma.triggerEventConfig.findMany({
+            where: {
+                agencyId,
+                userId,
+                trigger: { status: TriggerStatus.ACTIVE },
+                event: { key: eventKey },
+            },
+            select: { id: true, triggerEventId: true, triggerId: true },
+        });
+    }
+
+    /**
+     * Fetches the trigger event ID for a given event key.
+     * @param eventKey - Event key
+     * @returns Trigger event ID or null if not found
+     */
+    private async getTriggerEventId(eventKey: EventKeys): Promise<bigint | null> {
+        const triggerEvent = await this.prisma.triggerEvent.findFirst({
+            where: { key: eventKey },
+            select: { id: true },
+        });
+        return triggerEvent?.id ?? null;
+    }
+
+    /**
+     * Creates cache trigger event queue entries for each trigger event config.
+     * @param prisma - Prisma client
+     * @param triggerEventConfigs - Array of trigger event configs
+     * @param data - Common data for queue entries
+     * @returns Number of created queue entries
+     */
+    private async createCacheTriggerEventQueues(
+        prisma: PrismaService,
+        triggerEventConfigs: { id: bigint; triggerEventId: bigint; triggerId: bigint }[],
+        data: {
+            agencyId: bigint;
+            userId: bigint;
+            contactId: bigint;
+            eventKey: EventKeys;
+            triggerEventId: bigint;
+            payload: string;
+        },
+    ): Promise<number> {
+        const createData = triggerEventConfigs.map((config) => ({
+            userId: data.userId,
+            contactId: data.contactId,
+            agencyId: data.agencyId,
+            triggerEventType: data.eventKey,
+            triggerEventId: config.triggerEventId,
+            triggerId: config.triggerId,
+            triggerEventConfigId: config.id,
+            status: TriggerQueueStatus.PENDING,
+            scheduleAt: new Date(),
+            payload: data.payload,
+        }));
+
+        const createResult = await prisma.cacheTriggerEventQueue.createMany({
+            data: createData,
+            skipDuplicates: true,
+        });
+
+        return createResult.count;
+    }
+
+    /**
+     * Handles errors by logging and extracting error message.
+     * @param error - Error object or unknown
+     * @param context - Error context message
+     * @param logContext - Additional logging context
+     * @returns Error message
+     */
+    private handleError(error: unknown, context: string, logContext: Record<string, unknown>): string {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(context, { ...logContext, error: message });
+        return message;
+    }
+}

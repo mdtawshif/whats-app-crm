@@ -1,0 +1,29 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+export class PersonalizationDto {
+
+    @ApiProperty({ example: 1, description: 'Unique ID of the personalization record' })
+    id: bigint;
+
+    @ApiProperty({ example: 1, description: 'User ID who owns this personalization' })
+    userId: bigint;
+
+    @ApiProperty({ example: 1, description: 'Agency ID associated with this personalization' })
+    agencyId: bigint;
+
+    @ApiProperty({ example: 'FIRST_NAME', description: 'Personalization key (e.g., FIRST_NAME, COMPANY_NAME)' })
+    key: string;
+
+    @ApiProperty({ example: 'First Name', description: 'User-friendly label for the key' })
+    label: string;
+
+    @ApiProperty({ example: 'STRING', description: 'Type of personalization (TEXT, STRING, DATE, NUMBER, BOOLEAN, etc.)' })
+    type: string;
+
+    @ApiProperty({ example: 'John', description: 'Actual personalized value', required: false })
+    value?: string;
+
+    @ApiProperty({ example: 'Jane Doe', description: 'Optional example value for preview', required: false })
+    example?: string;
+
+}

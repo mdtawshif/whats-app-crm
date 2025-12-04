@@ -1,0 +1,282 @@
+import { Injectable } from '@nestjs/common';
+import { AgencyStatus, User, UserStatus, TriggerStatus, TriggerQueueStatus, Prisma, type Contact } from '@prisma/client';
+import { PinoLogger } from 'nestjs-pino';
+import { PrismaService } from 'nestjs-prisma';
+import { validateSync } from 'class-validator';
+import { DateTime } from 'luxon';
+import { RoleDTO } from '../../../utils/RoleDTO';
+import { FilterConfigDto } from '../dto/update-trigger-with-configs.dto';
+import { EventKeys, ContactTriggerEventType } from '../../../types/triggers/index';
+import { TRIGGER_FILTER_FIELDS } from '../constants/trigger.constant';
+import { getContactDisplayName } from '@/utils/contact';
+import { ContactFilterService } from './contact-filter.service'; // Assuming this contains buildContactFilterQuery
+import { BadRequestException } from '@nestjs/common';
+
+@Injectable()
+export class CronTriggerProcessService {
+  constructor(
+    private readonly logger: PinoLogger,
+    private readonly prisma: PrismaService,
+  ) {
+    this.logger.setContext(this.constructor.name);
+  }
+
+  async processCronTrigger(timezone: string = 'America/New_York'): Promise<void> {
+    this.logger.info('Cron Trigger Process Service Started');
+
+    const activeAgencies = await this.prisma.agency.findMany({
+      where: { status: AgencyStatus.ACTIVE },
+      select: { id: true },
+    });
+
+    this.logger.info(`Found ${activeAgencies.length} active agencies`);
+
+    for (const agency of activeAgencies) {
+      try {
+        await this.handleAgencyCronTriggers(agency.id, timezone);
+      } catch (error) {
+        this.logger.error(`Failed processing agency ID ${agency.id}: ${error.message}`);
+      }
+    }
+
+    this.logger.info('Cron Trigger Process Service Completed');
+  }
+
+  private async handleAgencyCronTriggers(agencyId: bigint, timezone: string): Promise<void> {
+    this.logger.info(`Handling cron triggers for agency ID: ${agencyId}`);
+
+    const activeUsers = await this.prisma.user.findMany({
+      where: {
+        agencyId: Number(agencyId),
+        status: UserStatus.ACTIVE,
+        role: { name: RoleDTO.ADMIN_ROLE_NAME },
+      },
+      select: { id: true },
+    });
+
+    this.logger.info(`Found ${activeUsers.length} active users for agency ID: ${agencyId}`);
+
+    for (const activeUser of activeUsers) {
+      try {
+        const user = await this.prisma.user.findUnique({
+          where: { id: Number(activeUser.id) },
+        });
+        if (!user) {
+          this.logger.warn(`User with ID ${activeUser.id} not found`);
+          continue;
+        }
+        await this.handleUserCronTriggers(user, timezone);
+      } catch (error) {
+        this.logger.error(`Failed processing user ID ${activeUser.id}: ${error.message}`);
+      }
+    }
+  }
+
+  private async handleUserCronTriggers(user: User, timezone: string): Promise<void> {
+    this.logger.info(`Handling cron triggers for user ID: ${user.id} in agency ID: ${user.agencyId}`);
+
+    const triggerTypes: ContactTriggerEventType[] = [EventKeys.BIRTHDAY, EventKeys.ANNIVERSARY];
+
+    for (const triggerType of triggerTypes) {
+      await this.handleTriggersByType(user, triggerType, timezone);
+    }
+  }
+
+  private async handleTriggersByType(user: User, triggerType: ContactTriggerEventType, timezone: string): Promise<void> {
+    const triggerEventConfigs = await this.prisma.triggerEventConfig.findMany({
+      where: {
+        agencyId: user.agencyId,
+        userId: user.id,
+        trigger: { status: TriggerStatus.ACTIVE },
+        event: { key: triggerType },
+      },
+      include: {
+        event: { select: { key: true } },
+      },
+    });
+
+    this.logger.info(`Found ${triggerEventConfigs.length} active ${triggerType} trigger configs for user ID: ${user.id}`);
+
+    if (!triggerEventConfigs.length) {
+      this.logger.info(`No active ${triggerType} trigger event configurations found for user ID: ${user.id}`);
+      return;
+    }
+
+    for (const triggerEventConfig of triggerEventConfigs) {
+      try {
+        this.logger.info(`Processing ${triggerType} trigger ID: ${triggerEventConfig.id} for user ID: ${user.id}`);
+
+        const filterConfigDtos = await this.parseTriggerEventFilters(triggerEventConfig);
+        this.logger.info(`Parsed ${filterConfigDtos.length} filters: ${JSON.stringify(filterConfigDtos)}`);
+
+        const { sql, params } = ContactFilterService.buildContactFilterQuery(
+          BigInt(user.agencyId),
+          BigInt(user.id),
+          triggerType,
+          filterConfigDtos,
+          timezone,
+        );
+
+        const contacts = await this.findContacts(user, triggerEventConfig.triggerId, triggerEventConfig.id, sql, params);
+
+        this.logger.info(`Found ${contacts.length} ${triggerType} contacts for trigger ID: ${triggerEventConfig.id}`);
+
+        if (!contacts.length) {
+          this.logger.info(`No contacts with ${triggerType.toLowerCase()} for user ID: ${user.id}`);
+          continue;
+        }
+
+        const scheduleAt = await this.getScheduleDateFromFilters(triggerEventConfig, filterConfigDtos, timezone);
+
+        for (const contact of contacts) {
+          try {
+            const alreadyExecuted = await this.prisma.cacheTriggerEventQueue.findFirst({
+              where: {
+                agencyId: user.agencyId,
+                userId: user.id,
+                triggerId: triggerEventConfig.triggerId,
+                triggerEventId: triggerEventConfig.triggerEventId,
+                triggerEventType: triggerEventConfig.event.key,
+                triggerEventConfigId: triggerEventConfig.id,
+                contactId: Number(contact.id),
+              },
+              select: { id: true },
+            });
+
+            if (alreadyExecuted) {
+              this.logger.info(
+                `Skipping contact ID: ${contact.id} for trigger ID: ${triggerEventConfig.id} as it has already been processed`,
+              );
+              continue;
+            }
+
+            const finalPayload = {
+              contactId: contact.id,
+              userId: user.id,
+              agencyId: user.agencyId,
+              eventKey: triggerEventConfig.event.key as EventKeys,
+              contact: { displayName: getContactDisplayName(contact as Contact), number: contact.number },
+            };
+
+            const cacheTriggerQueue = await this.prisma.cacheTriggerEventQueue.create({
+              data: {
+                agencyId: user.agencyId,
+                userId: user.id,
+                triggerId: triggerEventConfig.triggerId,
+                triggerEventId: triggerEventConfig.triggerEventId,
+                triggerEventType: triggerEventConfig.event.key,
+                triggerEventConfigId: triggerEventConfig.id,
+                contactId: Number(contact.id),
+                status: TriggerQueueStatus.PENDING,
+                scheduleAt,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                payload: JSON.stringify(finalPayload),
+              },
+            });
+
+            this.logger.info(`Created trigger queue ID: ${cacheTriggerQueue.id} for trigger ID: ${triggerEventConfig.id}`);
+          } catch (error) {
+            this.logger.error(`Failed processing contact ID ${contact.id}: ${error.message}`);
+          }
+        }
+      } catch (error) {
+        this.logger.error(`Failed processing trigger ID ${triggerEventConfig.id}: ${error.message}`);
+      }
+    }
+  }
+
+  private async findContacts(
+    user: User,
+    triggerId: bigint,
+    triggerEventConfigId: bigint,
+    sql: Prisma.Sql,
+    params: any[],
+  ): Promise<{ id: bigint; number: string; firstName: string; lastName: string }[]> {
+    const query = Prisma.sql`
+      SELECT c.id, c.number, c.first_name as firstName, c.last_name as lastName
+      FROM contacts c
+      LEFT JOIN cache_trigger_event_queues q
+        ON q.contact_id = c.id
+        AND q.trigger_event_config_id = ${triggerEventConfigId}
+        AND q.trigger_id = ${triggerId}
+        AND q.agency_id = c.agency_id
+        AND q.user_id = c.user_id
+      WHERE c.agency_id = ${user.agencyId}
+        AND c.user_id = ${user.id}
+        AND ${sql}
+        AND q.contact_id IS NULL
+    `;
+
+    this.logger.info(`Executing query: ${query.sql}`);
+
+    const contacts = await this.prisma.$queryRaw<
+      { id: bigint; number: string; firstName: string; lastName: string }[]
+    >(query, ...params);
+
+    this.logger.info(`Found ${contacts.length} contacts`);
+
+    return contacts;
+  }
+
+  private async parseTriggerEventFilters(triggerEventConfig: TriggerEventConfig): Promise<FilterConfigDto[]> {
+    if (!triggerEventConfig.filters) {
+      this.logger.warn(`No filters found in triggerEventConfig ID: ${triggerEventConfig.id}`);
+      return [];
+    }
+
+    try {
+      const filters = typeof triggerEventConfig.filters === 'string'
+        ? JSON.parse(triggerEventConfig.filters)
+        : triggerEventConfig.filters;
+
+      const filtersArray = Array.isArray(filters) ? filters : [filters];
+
+      const filterConfigDtos = filtersArray.map((filter) => {
+        const filterConfig = new FilterConfigDto();
+        filterConfig.field = filter.field;
+        filterConfig.operator = filter.operator;
+        filterConfig.value = filter.value;
+
+        const errors = validateSync(filterConfig);
+        if (errors.length > 0) {
+          throw new BadRequestException(`Invalid filter configuration: ${JSON.stringify(errors)}`);
+        }
+
+        return filterConfig;
+      });
+
+      return filterConfigDtos;
+    } catch (error) {
+      this.logger.error(`Failed to parse filters for triggerEventConfig ID: ${triggerEventConfig.id}: ${error.message}`);
+      throw new BadRequestException(`Invalid filter configuration: ${error.message}`);
+    }
+  }
+
+  private async getScheduleDateFromFilters(
+    triggerEventConfig: TriggerEventConfig,
+    filters: FilterConfigDto[],
+    timezone: string,
+  ): Promise<Date> {
+    if (!filters?.length) return DateTime.now().setZone(timezone).toJSDate();
+
+    for (const filter of filters) {
+      if (filter.field?.toLowerCase() === TRIGGER_FILTER_FIELDS.ON_DAY && filter.value) {
+        if (/^\d{1,2}:\d{2}$/.test(String(filter.value))) {
+          const [hour, minute] = String(filter.value).split(':').map(Number);
+          const scheduleTime = DateTime.now()
+            .setZone(timezone)
+            .set({ hour, minute, second: 0, millisecond: 0 });
+          if (!scheduleTime.isValid) {
+            this.logger.warn(`Invalid time format in ON_DAY filter: ${filter.value}`);
+            return DateTime.now().setZone(timezone).toJSDate();
+          }
+          return scheduleTime.toJSDate();
+        }
+        this.logger.warn(`Invalid ON_DAY filter value: ${filter.value}`);
+      }
+    }
+
+    return DateTime.now().setZone(timezone).toJSDate();
+  }
+}

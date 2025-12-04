@@ -1,0 +1,30 @@
+ // When existing thread is not found then get from number from waBusinessNumber
+ 
+ // Determine sender number
+      let senderNumber: string;
+      let businessPhoneNumberId: string | null = null;
+      console.log("existingThread:  ", existingThread);
+      if (existingThread) {
+        // Use existing thread's from number
+        senderNumber = existingThread.from;
+      } else {
+        // No existing thread - find WhatsApp Business number
+        console.log("phoneNumberId : ", phoneNumberId);
+        const waNumber = await this.prisma.waBusinessNumber.findFirst({
+          where: phoneNumberId
+            ? { phoneNumberId: phoneNumberId, userId: BigInt(userId), agencyId: BigInt(agencyId) }
+            : { agencyId: BigInt(agencyId), userId: BigInt(userId) },
+          select: { number: true, phoneNumberId: true },
+        });
+
+        if (!waNumber) {
+          throw new Error(
+            phoneNumberId
+              ? `No WhatsApp business number found with ID: ${phoneNumberId}`
+              : `No WhatsApp business number found for agency ID: ${agencyId} and user ID: ${userId}`
+          );
+        }
+
+        senderNumber = normalizePhoneNumber(waNumber.number);
+        businessPhoneNumberId = waNumber.phoneNumberId;
+      }

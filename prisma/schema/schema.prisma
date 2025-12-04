@@ -1,0 +1,2992 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 🧱 Enums Section – Auto-sorted and PascalCased
+// All enums converted to PascalCase, alphabetically sorted, and comments preserved.
+
+// 🏢 Represents the operational status of an agency account
+enum AgencyStatus {
+  ACTIVE // Agency is active and fully functional
+  DELETED // Agency record has been permanently removed
+  INACTIVE // Agency is temporarily disabled or suspended
+}
+
+// 🔄 Indicates whether automatic credit recharge is enabled for a user
+enum AutoRechargeStatus {
+  YES // Auto-recharge is enabled
+  NO // Auto-recharge is disabled
+}
+
+// 💬 WhatsApp Business Account Status
+enum WaBusinessStatus {
+  ACTIVE // WhatsApp Business account is active
+  INACTIVE // WhatsApp Business account is inactive or disabled
+}
+
+// 📞 WhatsApp Number Status
+enum WaNumberStatus {
+  ACTIVE // Number is active and usable
+  INACTIVE // Number is inactive
+  NOT_VERIFIED // Verification failed
+  PENDING // Awaiting verification
+  VERIFIED // Verified and active
+}
+
+// 📢 Broadcast Status Lifecycle
+enum BroadcastStatus {
+  ACTIVE
+  COMPLETED
+  DELETED
+  FAILED
+  INACTIVE
+  PAUSED
+  PAUSED_FOR_CREDIT
+  RUNNING
+  STOP
+}
+
+// 💳 BroadcastContactSource
+enum BroadcastContactSource {
+  BULK
+  FILE
+  SEGMENT
+  SINGLE
+  TAG
+}
+
+// 🔁 BroadcastContactQueueSource
+enum BroadcastContactQueueSource {
+  CONTACT // single contact added manually
+  FILE // contacts imported from uploaded file
+  GOOGLE_CONTACT // contacts imported from Google Contacts
+  SEGMENT // contacts added via dynamic segment or filter
+  TAG // contacts targeted by tag
+}
+
+// ⚙️ BroadcastPauseResumeRequestStatus
+enum BroadcastPauseResumeRequestStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  PROCESSING
+}
+
+// 📡 BroadcastSettingStatus
+enum BroadcastSettingStatus {
+  ACTIVE // Broadcast setting is currently active and in use
+  DELETED // Broadcast setting has been removed or archived
+  INACTIVE // Broadcast setting is temporarily disabled
+}
+
+// 🕒 BroadcastType
+enum BroadcastType {
+  IMMEDIATE // Broadcast is sent immediately after creation
+  RECURRING // Broadcast repeats on a recurring schedule
+  SCHEDULE // Broadcast is scheduled for a future time
+}
+
+// 💳 BillingPackageStatus
+enum BillingPackageStatus {
+  ACTIVE // The billing package is currently active and available for use
+  DELETED // The billing package has been permanently removed
+  INACTIVE // The billing package is temporarily disabled or hidden
+}
+
+// 🏢 BusinessCategory
+enum BusinessCategory {
+  EDUCATION
+  FINANCE
+  HEALTHCARE
+  HOSPITALITY
+  OTHER
+  RETAIL
+  TECHNOLOGY
+}
+
+// 🧾 BroadcastLogStatus
+enum BroadcastLogStatus {
+  DELIVERED
+  FAILED
+  READ
+  SENT
+  UNDELIVERED
+}
+
+// 🧩 Category of message templates
+enum TemplateCategory {
+  AUTHENTICATION // Used for login codes or verification messages
+  MARKETING // Used for promotional or broadcast messages
+  UTILITY // Used for updates, confirmations, or alerts
+}
+
+// 📝 TemplateStatus
+enum TemplateStatus {
+  APPROVED // Approved and ready for use
+  PENDING // Awaiting approval
+  REJECTED // Rejected or failed approval
+}
+
+// 💭 MessageType
+enum MessageType {
+  TEMPLATE // Message sent using a pre-approved template
+  TEXT // Message sent as plain text
+}
+
+// 🧩 ContactAction
+enum ContactAction {
+  OPT_OUT
+  PAUSE
+  RESUME
+  UNSUBSCRIBE
+}
+
+// 👤 ContactStatus
+enum ContactStatus {
+  ACTIVE // Contact is active and usable in campaigns or communication
+  DELETED // Contact has been removed or archived
+  INACTIVE // Contact exists but is temporarily disabled
+  OPT_OUT //
+}
+
+// ☎️ NumberStatus
+enum NumberStatus {
+  BLOCKED // Number is blocked or flagged for misuse
+  INVALID // Number is invalid or incorrectly formatted
+  PENDING_VERIFICATION // Number added but not yet verified
+  VERIFIED // Number has been successfully verified
+  WHATSAPP_READY // Number verified and ready for WhatsApp integration
+}
+
+// 🔗 CodeVerificationStatus
+enum CodeVerificationStatus {
+  EXPIRED // Verification expired
+  NOT_VERIFIED // Not yet verified
+  VERIFIED // Successfully verified
+}
+
+// 💬 ConversationStatus
+enum ConversationStatus {
+  DELIVERED
+  FAILED
+  READ
+  RECEIVED
+  SENT
+  UNDELIVERED
+}
+
+// 💬 ConversationMessageType
+enum ConversationMessageType {
+  TEMPLATE
+  TEXT
+}
+
+// 👓 ConversationReadStatus
+enum ConversationReadStatus {
+  READ
+  UNREAD
+}
+
+// 💬 ConversationInOut
+enum ConversationInOut {
+  IN
+  OUT
+}
+
+// ⏹️ ContactPauseResumeRequestStatus
+enum ContactPauseResumeRequestStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  PROCESSING
+}
+
+// 🔄 ContactImportQueueStatus
+enum ContactImportQueueStatus {
+  COMPLETED // Import finished successfully
+  FAILED // Import failed due to validation or system error
+  PENDING // Import request created and waiting to start
+  PROCESSING // Import is currently in progress
+  QUEUED // Import is queued and waiting to start
+}
+
+// 🗓️ ContactTriggerEventType
+enum ContactTriggerEventType {
+  ANNIVERSARY // Trigger fires on contact's anniversary
+  BIRTHDAY // Trigger fires on contact's birthday
+}
+
+// 📦 ContactForwardQueueStatus
+enum ContactForwardQueueStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  PROCESSING
+}
+
+// 🔁 CyclePeriod
+enum CyclePeriod {
+  HALF_YEAR // Bi-annual billing cycle
+  LIFE_TIME // One-time, lifetime access
+  MONTH // Monthly billing cycle
+  YEAR // Annual billing cycle
+}
+
+// ⚙️ CronJobStatus
+enum CronJobStatus {
+  INVALID // Job failed or has invalid data
+  PROCESSING // Job is currently in progress
+  PROCESSED // Job has been completed successfully
+  QUEUE // Job is queued and waiting to start
+}
+
+// ⚙️ EntryStatus
+enum EntryStatus {
+  COMPLETED // successfully processed
+  FAILED // processing failed
+  PENDING // waiting to be processed
+  PROCESSING // currently being handled
+}
+
+// 📊 Quality rating of a WhatsApp number
+enum NumberQualityRating {
+  GREEN // High quality — healthy engagement
+  RED // Low quality — risk of blocking or penalties
+  UNKNOWN // Quality not determined
+  YELLOW // Medium quality — moderate issues
+}
+
+// 🌐 FbBusinessStatus
+enum FbBusinessStatus {
+  ACTIVE // Facebook Business account is active
+  INACTIVE // Facebook Business account is inactive or disabled
+}
+
+// 📂 FileType
+enum FileType {
+  CSV // Standard comma-separated values file
+  GOOGLE_SHEET // Google Sheet used as the data source
+}
+
+// 🧑‍💼 GatewayCredentialGatewayType
+enum GatewayCredentialGatewayType {
+  AWS_S3
+  POSTMARK
+  TWILIO
+}
+
+// 🚦 GatewayCredentialStatus
+enum GatewayCredentialStatus {
+  ACTIVE
+  DELETED
+  INACTIVE
+}
+
+// 🔌 Gateway
+enum Gateway {
+  Other
+  PostMark
+  Stripe
+  Twilio
+  WhatsApp
+}
+
+// 👥 TeamRole
+enum TeamRole {
+  LEADER // Team leader with management privileges
+  MEMBER // Standard team member with limited permissions
+  OWNER // Team creator or administrator with full permissions
+}
+
+// 🧩 IntegrationStatus
+enum IntegrationStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// ⚙️ IntegrationType
+enum IntegrationType {
+  GOOGLE_CONTACT
+  GOOGLE_SHEETS
+  META_BUSINESS
+  OTHER
+  SHOPIFY
+  SLACK
+  TWILIO
+  ZAPIER
+}
+
+// 🧭 IncomingMessageStatus
+enum IncomingMessageStatus {
+  COMPLETE
+  FAILED
+  PENDING
+  PROCESSING
+}
+
+// 💬 Broadcast Contact Status
+enum BroadcastContactStatus {
+  ACTIVE
+  OPT_OUT
+  PAUSED
+  RUNNING
+  UNSUBSCRIBE
+}
+
+// 📥 IncomingMessageType
+enum IncomingMessageType {
+  AUDIO
+  DOCUMENT
+  IMAGE
+  TEXT
+  VIDEO
+}
+
+// 📨 InboxStatus
+enum InboxStatus {
+  FAILED
+  SUCCESS
+}
+
+// 📬 InboxReadStatus
+enum InboxReadStatus {
+  READ
+  UNREAD
+}
+
+// 📨 InboxInOut
+enum InboxInOut {
+  IN
+  OUT
+}
+
+// 🔐 IsMailVerified
+enum IsMailVerified {
+  NO // User's email address has not been verified
+  YES // User's email address is verified
+}
+
+// ⚙️ LimitType
+enum LimitType {
+  PER_HOUR
+  PER_MINUTE
+  PER_MONTH
+}
+
+// 🚦 LiveMode
+enum LiveMode {
+  NO // Live mode is disabled — actions run in test or simulation mode
+  YES // Live mode is enabled — actions execute in real time
+}
+
+// 💭 MessagingProduct
+enum MessagingProduct {
+  INSTAGRAM
+  MESSENGER
+  WHATS_APP
+}
+
+// 🧠 MetadataSyncJobStatus
+enum MetadataSyncJobStatus {
+  COMPLETED // Job completed successfully
+  FAILED // Job failed during execution
+  IN_PROGRESS // Job is currently running
+  PENDING // Job is queued and waiting to start
+}
+
+// ⚙️ MetadataSyncJobType
+enum MetadataSyncJobType {
+  ACCOUNT // Syncing account-level data (e.g., business settings)
+  TEMPLATE // Syncing message or broadcast templates
+}
+
+// 🔐 PermissionStatus
+enum PermissionStatus {
+  ACTIVE // Permission is active and can be applied to roles or users
+  INACTIVE // Permission is disabled or not currently in use
+}
+
+// 💰 PriceType
+enum PriceType {
+  PERCENTAGE
+  PRICE
+}
+
+// 💬 Product type or platform where the message originated
+enum ProductType {
+  INSTAGRAM
+  MESSENGER
+  WHATS_APP
+}
+
+// 💬 PricingMessageType
+enum PricingMessageType {
+  AUTHENTICATION
+  MARKETING
+  TEXT
+  UTILITY
+}
+
+// 🌐 ProviderType
+enum ProviderType {
+  FACEBOOK
+  GOOGLE
+}
+
+// 🔄 QueueStatus
+enum QueueStatus {
+  DELIVERED
+  FAILED
+  PENDING
+  PROCESSING
+  SENT
+}
+
+// ⚙️ RateLimitEnabled
+enum RateLimitEnabled {
+  FALSE
+  TRUE
+}
+
+// 🧩 RequestType
+enum RequestType {
+  CANCEL_SUBSCRIPTION // Cancel the user's current subscription plan
+  CHANGE_PACKAGE_PLAN // Change to a different package or billing plan
+  DEACTIVATE_USER // Deactivate a user account
+  IMPORT_GOOGLE_CONTACTS // Import contacts from Google Contacts
+}
+
+// 🧩 RequestStatus
+enum RequestStatus {
+  ACTIVE // Request is active or ongoing
+  DELETED // Request deleted from the system
+  FAILED // Request failed due to error
+  INVALID // Request invalid or malformed
+  PROCESSED // Completed successfully
+  PROCESSING // Currently being handled
+  QUEUE // Waiting to be processed
+}
+
+// 📜 RequestLogStatus
+enum RequestLogStatus {
+  FAILED // Log processing failed
+  INVALID // Log invalid or corrupted
+  PROCESSING // Log currently being processed
+  QUEUE // Log queued for processing
+  SUCCESS // Successfully processed and logged
+}
+
+// 🧑‍💼 RoleStatus
+enum RoleStatus {
+  ACTIVE // Role is active and assigned to users
+  INACTIVE // Role is inactive or deprecated
+}
+
+// ⏹️ PauseStopOption
+enum PauseStopOption {
+  NO
+  YES
+}
+
+// ⏯️ PauseResumeAction
+enum PauseResumeAction {
+  PAUSE
+  PAUSED_FOR_CREDIT
+  RESUME
+}
+
+// 💳 TransactionType
+enum TransactionType {
+  IN // Incoming transaction (credit)
+  OUT // Outgoing transaction (debit)
+}
+
+// ⚙️ SettingStatus
+enum SettingStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// 💬 SendLogStatus
+enum SendLogStatus {
+  COMPLETED // Message successfully sent
+  FAILED // Message failed to send
+  NEW // Log entry created but not yet processed
+}
+
+// 📤 SendLogType
+enum SendLogType {
+  CALL // Sent via phone call
+  EMAIL // Sent via email
+  SMS // Sent via SMS
+}
+
+// 🧭 NotificationType
+enum NotificationType {
+  AGENCY_ALERT // System-wide agency-level alerts
+  CONTACT_IMPORT_ALERT // Alerts for contact import operations
+  ERROR // Indicates an error or failure
+  INFO // General informational message
+  NEW_MESSAGE // Notification for new incoming message
+  SUCCESS // Indicates a successful action or process
+  TEAM_UPDATE // Updates or changes related to team members
+  TRIGGER_ALERT // Trigger-related notification or alert
+}
+
+// 💳 UserAutoRechargeStatus
+enum UserAutoRechargeStatus {
+  FAILED // Recharge attempt failed
+  PENDING // Recharge is in progress or awaiting confirmation
+  SUCCESS // Recharge completed successfully
+}
+
+// 💳 UserCardInfoStatus
+enum UserCardInfoStatus {
+  ACTIVE // The card is active and available for transactions
+  DELETED // The card has been removed from the system
+  INACTIVE // The card exists but is not currently in use
+  TRIALING // The card is temporarily active for a trial period
+}
+
+// 👤 UserStatus
+enum UserStatus {
+  ACTIVE // User account is active and in good standing
+  CANCEL_SUB_REQUESTED // User has requested to cancel their subscription
+  DEACTIVATE_ACC_REQUESTED // User has requested to deactivate their account
+  DELETED // User account has been permanently removed
+  INACTIVE // User account is temporarily disabled
+  NEED_TO_RESET_CREDENTIAL // User must reset login credentials
+  PENDING // User registration or verification is pending
+}
+
+// 📦 UserPackageStatus
+enum UserPackageStatus {
+  ACTIVE // Package is active and currently in use
+  DELETED // Package has been removed or cancelled
+  INACTIVE // Package exists but is not active
+  TRIALING // Package is in the trial period
+}
+
+// 💳 UserPackageRenewHistoryStatus
+enum UserPackageRenewHistoryStatus {
+  FAILED // Renewal attempt failed
+  PENDING // Renewal is in progress or awaiting confirmation
+  SUCCESS // Renewal completed successfully
+}
+
+// 🧩 UserPackagesHistoryStatus
+enum UserPackagesHistoryStatus {
+  ACTIVE
+  DELETED
+  INACTIVE
+  TRIALING
+}
+
+// 📱 TokenType
+enum TokenType {
+  APNS // Apple Push Notification Service token
+  FCM // Firebase Cloud Messaging token
+}
+
+// 🧩 TeamStatus
+enum TeamStatus {
+  ACTIVE // Team is active and operational
+  DELETED // Team has been permanently removed
+  INACTIVE // Team exists but is temporarily disabled
+}
+
+// ⚙️ TeamMemberStatus
+enum TeamMemberStatus {
+  ACTIVE // Member is active and part of the team
+  DELETED // Member has been permanently removed
+  INACTIVE // Member is temporarily deactivated or suspended
+}
+
+// 🔐 WebhookDirection
+enum WebhookDirection {
+  DLR
+  INCOMING
+  Other
+  OUTGOING
+}
+
+// ⚙️ WebhookProcessStatus
+enum WebhookProcessStatus {
+  FAILED
+  PROCESSED
+  PROCESSING
+  QUEUE
+}
+
+// 🧠 WebhookStatus
+enum WebhookStatus {
+  INVALID
+  PROCESSED
+  PROCESSING
+  QUEUE
+}
+
+// ✅ YesNo
+enum YesNo {
+  NO // Negative or disabled state
+  YES // Affirmative or enabled state
+}
+
+// 🟢 TriggerStatus
+enum TriggerStatus {
+  ACTIVE // Trigger is active and running
+  INACTIVE // Trigger is disabled
+  PAUSED // Trigger temporarily paused
+}
+
+// ⚙️ TriggerEventExecutionLogStatus 
+enum TriggerEventExecutionLogStatus {
+  FAILED // Execution failed due to error or condition mismatch
+  SUCCESS // Execution completed successfully
+}
+
+// 🔁 In/Out Direction Indicator
+enum InOut {
+  IN
+  OUT
+}
+
+enum TriggerQueueStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Agency {
+  id           BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  ownerId      BigInt?      @map("owner_id") @db.UnsignedBigInt
+  name         String       @db.VarChar(255)
+  status       AgencyStatus @default(ACTIVE)
+  domain       String?      @db.VarChar(255)
+  domainPrefix String?      @map("domain_prefix") @db.VarChar(255)
+  logoUrl      String?      @map("logo_url") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // ───────────────────────────────────────────────
+  // 👥 Core Relations
+  users          User[]
+  permissions    Permission[]
+  teams          Team[]
+  teamMembers    TeamMember[]
+  agencySettings AgencySetting[]
+  userSettings   UserSetting[]
+
+  // ───────────────────────────────────────────────
+  // 💳 Billing & Packages
+  billingPackages         BillingPackage[]
+  billingTransactions     BillingTransaction[]
+  userPackages            UserPackage[]
+  userPackagesHistory     UserPackagesHistory[]
+  userPackageRenewHistory UserPackageRenewHistory[]
+  userCardInfos           UserCardInfo[]
+  stripeWebhookEvents     StripeWebhookEvents[]
+
+  // ───────────────────────────────────────────────
+  // ⚙️ Integrations & Credentials
+  integrations       Integration[]
+  metaOauthTokens    MetaOauthToken[]
+  ssoProviders       SsoProvider[]
+  gatewayCredentials GatewayCredentials[]
+  gmailAccounts      GmailAccount[]
+  fbBusinessAccounts FbBusinessAccount[]
+  waBusinessAccounts WaBusinessAccount[]
+  waBusinessNumbers  WaBusinessNumber[]
+  waBusinessProfiles WaBusinessProfile[]
+
+  // ───────────────────────────────────────────────
+  // 🧠 Triggers & Automation
+  triggers                        Trigger[]
+  triggerEventConfigs             TriggerEventConfig[]
+  triggerActionConfigs            TriggerActionConfig[]
+  triggerEventExecutionLogs       TriggerEventExecutionLog[]
+  triggerEventActionExecutionLogs TriggerEventActionExecutionLog[]
+
+  // ───────────────────────────────────────────────
+  // 📇 Contacts & CRM
+  contactSources             ContactSource[]
+  contacts                   Contact[]
+  contactAssignments         ContactAssignment[]
+  contactImportQueues        ContactImportQueue[]
+  contactImportQueueContacts ContactImportQueueContact[]
+  customFields               CustomField[]
+  contactCustomFields        ContactCustomField[]
+  contactTags                ContactTag[]
+  tags                       Tag[]
+  gmailImportedContacts      GmailImportedContact[]
+  optOutContacts             OptOutContact[]
+  broadcastContacts          BroadcastContact[]
+
+  // ───────────────────────────────────────────────
+  // 🧩 Customization
+  personalizations Personalization[]
+
+  // ───────────────────────────────────────────────
+  // ✉️ Messaging & Communication
+  inboxThreads           InboxThread[]
+  conversations          Conversation[]
+  broadcasts             Broadcast[]
+  broadcastSettings      BroadcastSetting[]
+  broadcastMessageQueues BroadcastMessageQueue[]
+  broadcastMessageLogs   BroadcastMessageLog[]
+  messageTemplates       MessageTemplate[]
+  sendLogs               SendLog[]
+
+  // ───────────────────────────────────────────────
+  // 🔔 Notifications
+  notifications      Notification[]
+  notificationTokens UserNotificationToken[]
+
+  // ─────────────────────────────────────────────── 
+  // 🧾 Requests & Logs
+  userRequests    UserRequest[]
+  userRequestLogs UserRequestLog[]
+
+  segmentContacts SegmentContact[]
+
+  segments Segment[]
+  activities             Activity[]   // 👈 opposite side of relation
+  AssignedWhatsappNumber AssignedWhatsappNumber[]
+
+  @@index([name], map: "idx_agencies_name")
+  @@index([status], map: "idx_agencies_status")
+  @@index([name, status], map: "idx_agencies_name_status")
+  @@map("agencies")
+}
+
+model Asset {
+  id       BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId BigInt? @map("agency_id") @db.UnsignedBigInt
+  name     String  @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  @@index([agencyId, name], name: "idx_agency_assets_name")
+  @@map("assets")
+}
+
+model ContactSource {
+  id          BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId    BigInt  @map("agency_id") @db.UnsignedBigInt
+  name        String  @db.VarChar(100)
+  description String? @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations with FK mapping
+  agency Agency @relation(fields: [agencyId], references: [id], map: "fk_contact_sources_agency", onDelete: Cascade, onUpdate: Cascade)
+
+  contacts Contact[]
+
+  @@unique([agencyId, name], name: "contact_sources_agency_id_name_unique")
+  @@map("contact_sources")
+}
+
+model BillingPackage {
+  id              BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId        BigInt               @map("agency_id") @db.UnsignedBigInt
+  name            String
+  status          BillingPackageStatus @default(ACTIVE)
+  cyclePeriod     CyclePeriod          @map("cycle_period")
+  chargeAmount    Decimal              @map("charge_amount") @db.Decimal(12, 2)
+  trialFreeCredit Int                  @default(0) @map("trial_free_credit")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations with explicit FK mapping
+  agency Agency @relation(fields: [agencyId], references: [id], map: "fk_billing_packages_agency", onDelete: Cascade, onUpdate: Cascade)
+
+  userPackages            UserPackage[]
+  billingTransactions     BillingTransaction[]
+  UserAutoRechargeHistory UserAutoRechargeHistory[]
+  messagingPricing        MessagingPricing[]
+
+  @@unique([agencyId, name, status], name: "billing_packages_agency_name_status_key")
+  @@map("billing_packages")
+}
+
+model Permission {
+  id             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId       BigInt           @map("agency_id") @db.UnsignedBigInt
+  permissionId   BigInt           @map("permission_id") @db.UnsignedBigInt
+  permissionName String           @map("permission_name")
+  status         PermissionStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relation with FK mapping
+  agency Agency @relation(fields: [agencyId], references: [id], map: "fk_permissions_agency", onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([agencyId, permissionName], name: "uq_agency_permission_name")
+  @@map("permissions")
+}
+
+model Role {
+  id             BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId       BigInt?    @map("agency_id") @db.UnsignedBigInt
+  name           String     @unique @db.VarChar(191)
+  permissionMask String     @default("0") @map("permission_mask") @db.VarChar(100)
+  status         RoleStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  users User[]
+
+  @@unique([agencyId, name, status], map: "agency_name_status_unique")
+  @@map("roles")
+}
+
+model User {
+  id                     BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId               BigInt?            @map("agency_id") @db.UnsignedBigInt
+  parentUserId           BigInt?            @map("parent_user_id") @db.UnsignedBigInt
+  roleId                 BigInt?            @map("role_id") @db.UnsignedBigInt
+  userName               String?            @map("user_name") @db.VarChar(190)
+  apiKey                 String             @map("api_key") @db.VarChar(190)
+  email                  String             @db.VarChar(255)
+  phone                  String?            @db.VarChar(191)
+  password               String             @db.VarChar(255)
+  rawPassword            String?            @map("raw_password") @db.VarChar(191)
+  currentCredit          Decimal            @default(0.00) @map("current_credit") @db.Decimal(10, 2)
+  autoRecharge           AutoRechargeStatus @default(NO)
+  autoRechargeAmount     Float              @default(25.00) @map("auto_recharge_amount")
+  minimumCreditThreshold BigInt?            @default(10) @map("minimum_credit_threshhold")
+  timeZone               String             @default("America/New_York") @map("time_zone") @db.VarChar(100)
+  rolePermissionMask     String             @default("0") @map("role_permission_mask") @db.VarChar(100)
+  addedPermissionMask    String             @default("0") @map("added_permission_mask") @db.VarChar(100)
+  removedPermissionMask  String             @default("0") @map("removed_permission_mask") @db.VarChar(100)
+  isMailVerified         IsMailVerified     @default(NO) @map("is_mail_verified")
+  status                 UserStatus         @default(ACTIVE)
+  profileUrl             String?            @map("profile_url") @db.Text
+  createdAt              DateTime           @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt              DateTime           @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // ───────────────────────────────────────────────
+  // 🔗 Core Relations
+  agency     Agency? @relation(fields: [agencyId], references: [id], map: "fk_users_agency")
+  role       Role?   @relation(fields: [roleId], references: [id], map: "fk_users_role")
+  parentUser User?   @relation("ParentUser", fields: [parentUserId], references: [id], map: "fk_users_parent_user")
+  childUsers User[]  @relation("ParentUser")
+  ownedTeams Team[]  @relation("TeamOwner")
+
+  // ───────────────────────────────────────────────
+  // 💳 Billing & Payments
+  userCardInfos              UserCardInfo[]
+  stripeWebhookEvents        StripeWebhookEvents[]
+  billingTransactions        BillingTransaction[]      @relation("BillingTransactionOwnerUser")
+  billingTransactionsCreated BillingTransaction[]      @relation("BillingTransactionCreatedByUser")
+  messagingPricings          MessagingPricing[]
+  userPackagesHistory        UserPackagesHistory[]
+  userPackageRenewHistory    UserPackageRenewHistory[]
+  userAutoRechargeHistory    UserAutoRechargeHistory[]
+  userPackages               UserPackage[]
+
+  // ───────────────────────────────────────────────
+  // ⚙️ Settings & Tokens
+  userSettings          UserSetting[]
+  tokens                Token[]
+  notificationTokens    UserNotificationToken[]
+  UserToNotification    Notification[]          @relation("UserToNotification")
+  CreatedByNotification Notification[]          @relation("CreatedByNotification")
+  ssoProviders          SsoProvider[]
+  metaOauthTokens       MetaOauthToken[]
+  integrations          Integration[]
+  gatewayCredentials    GatewayCredentials[]
+
+  // ───────────────────────────────────────────────
+  // 📇 Contacts & CRM
+  ContactOwnerUser                       Contact[]                   @relation("ContactOwnerUser")
+  ContactCreatedByUser                   Contact[]                   @relation("ContactCreatedByUser")
+  ContactImportQueueOwnerUser            ContactImportQueue[]        @relation("ContactImportQueueOwnerUser")
+  ContactImportQueueCreatedByUser        ContactImportQueue[]        @relation("ContactImportQueueCreatedByUser")
+  contactTags                            ContactTag[]                @relation("OwnerUser")
+  contactTagsCreated                     ContactTag[]                @relation("CreatedByUser")
+  contactCustomFields                    ContactCustomField[]        @relation("ContactCustomFieldOwnerUser")
+  contactCustomFieldsCreated             ContactCustomField[]        @relation("ContactCustomFieldCreatedByUser")
+  ContactAssignmentOwner                 ContactAssignment[]         @relation("ContactAssignmentOwner")
+  AssignedByUser                         ContactAssignment[]         @relation("AssignedByUser")
+  AssignedToUser                         ContactAssignment[]         @relation("AssignedToUser")
+  UserToGmailImportedContact             GmailImportedContact[]      @relation("UserToGmailImportedContact")
+  CreatedByGmailImportedContact          GmailImportedContact[]      @relation("CreatedByGmailImportedContact")
+  broadcastContactsOwned                 BroadcastContact[]          @relation("UserToBroadcastContact")
+  broadcastContactsCreated               BroadcastContact[]          @relation("CreatedByUserToBroadcastContact")
+  optOutContacts                         OptOutContact[]             @relation("UserToOptOutContact")
+  optOutContactsCreated                  OptOutContact[]             @relation("CreatedByOptOutContact")
+  ContactImportQueueContactOwnerUser     ContactImportQueueContact[] @relation("ContactImportQueueContactOwnerUser")
+  ContactImportQueueContactCreatedByUser ContactImportQueueContact[] @relation("ContactImportQueueContactCreatedByUser")
+
+  // ───────────────────────────────────────────────
+  // 🧩 Customization
+  PersonalizationOwnerUser     Personalization[] @relation("PersonalizationOwnerUser")
+  PersonalizationCreatedByUser Personalization[] @relation("PersonalizationCreatedByUser")
+  customFieldsOwned            CustomField[]     @relation("CustomFieldOwnerUser")
+  customFieldsCreated          CustomField[]     @relation("CustomFieldCreatedByUser")
+  tagsOwned                    Tag[]             @relation("OwnerUser")
+  tagsCreated                  Tag[]             @relation("CreatedByUser")
+
+  // ───────────────────────────────────────────────
+  // ✉️ Messaging & Communication
+  SendLogOwnerUser              SendLog[]               @relation("SendLogOwnerUser")
+  SendLogCreatedByUser          SendLog[]               @relation("SendLogCreatedByUser")
+  inboxThreadsOwned             InboxThread[]           @relation("InboxThreadOwnerUser")
+  inboxThreadsCreated           InboxThread[]           @relation("InboxThreadCreatedByUser")
+  conversationsOwned            Conversation[]          @relation("ConversationOwnerUser")
+  conversationsCreated          Conversation[]          @relation("ConversationCreatedByUser")
+  messageTemplatesOwned         MessageTemplate[]       @relation("MessageTemplateOwnerUser")
+  messageTemplatesCreated       MessageTemplate[]       @relation("MessageTemplateCreatedByUser")
+  broadcastsOwned               Broadcast[]             @relation("OwnerUser")
+  broadcastsCreated             Broadcast[]             @relation("CreatedByUser")
+  broadcastSettingsOwned        BroadcastSetting[]      @relation("OwnerUser")
+  broadcastSettingsCreated      BroadcastSetting[]      @relation("CreatedByUser")
+  broadcastMessageQueues        BroadcastMessageQueue[] @relation("OwnerUser")
+  broadcastMessageQueuesCreated BroadcastMessageQueue[] @relation("CreatedByUser")
+  broadcastMessageLogs          BroadcastMessageLog[]   @relation("OwnerUser")
+  broadcastMessageLogsCreated   BroadcastMessageLog[]   @relation("CreatedByUser")
+
+  // ───────────────────────────────────────────────
+  // 🧠 Segments & Triggers
+  segmentsOwned                   Segment[]                        @relation("SegmentOwnerUser")
+  segmentsCreated                 Segment[]                        @relation("SegmentCreatedByUser")
+  segmentContactsOwned            SegmentContact[]                 @relation("SegmentContactOwnerUser")
+  segmentContactsCreated          SegmentContact[]                 @relation("SegmentContactCreatedByUser")
+  triggersOwned                   Trigger[]                        @relation("UserToTrigger")
+  triggersCreated                 Trigger[]                        @relation("CreatedByTrigger")
+  triggerEventConfigsOwned        TriggerEventConfig[]             @relation("UserToTriggerEventConfig")
+  triggerEventConfigsCreated      TriggerEventConfig[]             @relation("CreatedByTriggerEventConfig")
+  UserToTriggerActionConfig       TriggerActionConfig[]            @relation("UserToTriggerActionConfig")
+  CreatedByTriggerActionConfig    TriggerActionConfig[]            @relation("CreatedByTriggerActionConfig")
+  triggerEventExecutionLogs       TriggerEventExecutionLog[]
+  triggerEventActionExecutionLogs TriggerEventActionExecutionLog[]
+
+  // ───────────────────────────────────────────────
+  // 🧾 Requests & Jobs
+  UserToUserRequest    UserRequest[]     @relation("UserToUserRequest")
+  CreatedByUserRequest UserRequest[]     @relation("CreatedByUserRequest")
+  userRequestLogs      UserRequestLog[]
+  metaDataSyncJobs     MetaDataSyncJob[]
+
+  // ───────────────────────────────────────────────
+  // 🌍 Integrations & External
+  fbBusinessAccounts FbBusinessAccount[]
+  waBusinessAccounts WaBusinessAccount[]
+  waBusinessNumbers  WaBusinessNumber[]
+  waBusinessProfiles WaBusinessProfile[]
+  gmailAccounts      GmailAccount[]
+  teamMembers        TeamMember[]
+  // Opposite side of Activity.user
+  activities         Activity[]          @relation("ActivityUser")
+  // Opposite side of Activity.createdByUser
+  createdActivities   Activity[] @relation("ActivityCreatedByUser")
+  AssignedWhatsappNumber AssignedWhatsappNumber[] @relation("OwnerUser")
+  AssignedWhatsappByUser AssignedWhatsappNumber[] @relation("AssignedBy")
+  AssignedWhatsappToUser AssignedWhatsappNumber[] @relation("AssignedTo")
+
+  @@unique([agencyId, email], map: "users_agency_email_key")
+  @@map("users")
+}
+
+model UserPackage {
+  id                     BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId               BigInt            @map("agency_id") @db.UnsignedBigInt
+  userId                 BigInt            @map("user_id") @db.UnsignedBigInt
+  packageId              BigInt            @map("package_id") @db.UnsignedBigInt
+  status                 UserPackageStatus @default(ACTIVE)
+  startDate              DateTime          @map("start_date") @db.DateTime(3)
+  nextBillingDate        DateTime          @map("next_billing_date") @db.DateTime(3)
+  trialMode              YesNo             @default(NO) @map("trial_mode")
+  message                String?           @db.VarChar(255)
+  providerSubscriptionId String?           @map("provider_subscription_id") @db.VarChar(191)
+  trialStart             DateTime?         @map("trial_start") @db.DateTime(3)
+  trialEnd               DateTime?         @map("trial_end") @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations with explicit FK mapping
+  agency  Agency         @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_packages_agency")
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_packages_user")
+  package BillingPackage @relation(fields: [packageId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_packages_package")
+
+  @@unique([userId, packageId, status], name: "uniq_user_package")
+  @@map("user_packages")
+}
+
+model Team {
+  id          BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId    BigInt     @map("agency_id") @db.UnsignedBigInt
+  ownerId     BigInt?    @map("owner_id") @db.UnsignedBigInt
+  status      TeamStatus @default(ACTIVE)
+  name        String     @db.VarChar(255)
+  description String?    @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency     Agency       @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_teams_agency")
+  owner      User?        @relation("TeamOwner", fields: [ownerId], references: [id], map: "fk_teams_owner")
+  TeamMember TeamMember[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id       BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId BigInt           @map("agency_id") @db.UnsignedBigInt
+  teamId   BigInt           @map("team_id") @db.UnsignedBigInt
+  memberId BigInt           @map("member_id") @db.UnsignedBigInt
+  teamRole TeamRole         @default(MEMBER) @map("team_role")
+  status   TeamMemberStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_team_members_agency")
+  team   Team?  @relation(fields: [teamId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_team_members_team")
+  member User   @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_team_members_user")
+
+  @@map("team_members")
+}
+
+model ContactImportQueue {
+  id           BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId     BigInt                   @map("agency_id") @db.UnsignedBigInt
+  userId       BigInt                   @map("user_id") @db.UnsignedBigInt
+  createdBy    BigInt?                  @map("created_by") @db.UnsignedBigInt
+  fileType     FileType                 @map("file_type")
+  fileUrl      String?                  @map("file_url") @db.Text
+  fileName     String?                  @map("file_name")
+  fileSummary  Json?                    @map("file_summary")
+  fieldMapping String?                  @map("field_mapping") @db.Text
+  status       ContactImportQueueStatus @default(PENDING)
+  country      String?                  @db.VarChar(190)
+  countryCode  String?                  @map("country_code") @db.VarChar(190) // e.g. +880, +1
+  errorMessage String?                  @map("error_message") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_import_agency")
+  user          User   @relation("ContactImportQueueOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_import_user")
+  createdByUser User?  @relation("ContactImportQueueCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_contact_import_created_by")
+
+  ContactImportQueueContact ContactImportQueueContact[]
+  ContactImportQueueLog ContactImportQueueLog[]
+
+  @@index([agencyId, userId, createdBy], name: "idx_contact_import_agency_user_createdby")
+  @@map("contact_import_queues")
+}
+
+model Contact {
+  id              BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  userId          BigInt         @map("user_id") @db.UnsignedBigInt
+  createdBy       BigInt?        @map("created_by") @db.UnsignedBigInt
+  agencyId        BigInt         @map("agency_id") @db.UnsignedBigInt
+  number          String         @db.VarChar(20)
+  firstName       String?        @map("first_name") @db.VarChar(100)
+  lastName        String?        @map("last_name") @db.VarChar(100)
+  email           String?        @db.VarChar(255)
+  city            String?        @db.VarChar(190)
+  state           String?        @db.VarChar(190)
+  country         String?        @db.VarChar(190)
+  countryCode     String?        @map("country_code") @db.VarChar(190) // e.g. +880, +1
+  address         String?        @db.Text
+  status          ContactStatus?
+  numberStatus    NumberStatus?  @map("number_status")
+  //newly added
+  birthDate       DateTime?      @map("birth_date") @db.Date
+  anniversaryDate DateTime?      @map("anniversary_date") @db.Date
+  sourceId        BigInt?        @map("source_id") @db.UnsignedBigInt
+  googleContactId String?        @map("google_contact_id") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // NEW: pre-split birthday parts
+  birthYear  Int? @map("birth_year") @db.UnsignedInt
+  birthMonth Int? @map("birth_month") @db.UnsignedTinyInt
+  birthDay   Int? @map("birth_day") @db.UnsignedTinyInt
+
+  // NEW: pre-split anniversary parts
+  anniversaryYear  Int? @map("anniversary_year") @db.UnsignedInt
+  anniversaryMonth Int? @map("anniversary_month") @db.UnsignedTinyInt
+  anniversaryDay   Int? @map("anniversary_day") @db.UnsignedTinyInt
+
+  // Relations
+  user          User           @relation("ContactOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contacts_user")
+  agency        Agency         @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contacts_agency")
+  source        ContactSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_contacts_source")
+  createdByUser User?          @relation("ContactCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_contact_created_by")
+
+  ContactImportQueueContact      ContactImportQueueContact[]
+  ContactCustomField             ContactCustomField[]
+  SegmentContact                 SegmentContact[]
+  InboxThread                    InboxThread[]
+  Conversation                   Conversation[]
+  BroadcastMessageQueue          BroadcastMessageQueue[]
+  BroadcastMessageLog            BroadcastMessageLog[]
+  ContactTag                     ContactTag[]
+  ContactAssignment              ContactAssignment[]
+  OptOutContact                  OptOutContact[]
+  gmailImportedContacts          GmailImportedContact[]
+  TriggerEventExecutionLog       TriggerEventExecutionLog[]
+  TriggerEventActionExecutionLog TriggerEventActionExecutionLog[]
+  BroadcastContact               BroadcastContact[]
+  activities                     Activity[] // 👈 opposite side of relation
+  BillingTransaction             BillingTransaction[]
+
+  // Helpful indexes for lookups like “who has birthday today/this month”
+  @@index([birthMonth, birthDay])
+  @@index([anniversaryMonth, anniversaryDay])
+  @@index([birthYear])
+  @@index([anniversaryYear])
+  @@map("contacts")
+}
+
+model ContactImportQueueContact {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  queueId   BigInt  @map("queue_id") @db.UnsignedBigInt
+  contactId BigInt  @map("contact_id") @db.UnsignedBigInt
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  queue         ContactImportQueue @relation(fields: [queueId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_queue_contacts_queue")
+  contact       Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_queue_contacts_contact")
+  user          User               @relation("ContactImportQueueContactOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_queue_contacts_user")
+  agency        Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_queue_contacts_agency")
+  createdByUser User?              @relation("ContactImportQueueContactCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_queue_contacts_created_by")
+
+  @@unique([queueId, contactId], map: "uq_queue_contact")
+  @@map("contact_import_queue_contacts")
+}
+
+model Personalization {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  key       String  @db.VarChar(100) // personalization key e.g. FIRST_NAME, COMPANY_NAME
+  label     String  @db.VarChar(100) // user-friendly label e.g. "First Name"
+  type      String  @db.VarChar(50) // TEXT, STRING, DATE, NUMBER, BOOLEAN, etc.
+  value     String? @db.Text // actual personalized value
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user          User   @relation("PersonalizationOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_personalizations_user")
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_personalizations_agency")
+  createdByUser User?  @relation("PersonalizationCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_personalizations_created_by")
+
+  activities Activity[] // 👈 opposite side of relation
+
+  // 🔑 Unique constraint is now on (agencyId, key)
+  @@unique([userId, key], map: "personalizations_user_key_unique")
+  @@index([agencyId, userId, createdBy], map: "idx_personalizations_agency_user_createdby")
+  @@map("personalizations")
+}
+
+model CustomField {
+  id           BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId       BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy    BigInt? @map("created_by") @db.UnsignedBigInt
+  agencyId     BigInt  @map("agency_id") @db.UnsignedBigInt
+  key          String  @db.VarChar(100) // personalization key e.g. FIRST_NAME, COMPANY_NAME
+  label        String  @db.VarChar(100) // user-friendly label e.g. "First Name"
+  type         String  @db.VarChar(50) // TEXT, STRING, LINK, DATE, NUMBER, BOOLEAN, etc.
+  defaultValue String? @map("default_value") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user          User   @relation("CustomFieldOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_custom_fields_user")
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_custom_fields_agency")
+  createdByUser User?  @relation("CustomFieldCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_custom_fields_created_by")
+
+  ContactCustomField ContactCustomField[]
+  activities         Activity[] // 👈 opposite side of relation
+
+  @@unique([userId, label], map: "custom_fields_user_label_key")
+  @@index([agencyId, userId, createdBy], map: "idx_custom_fields_agency_user_createdby")
+  @@map("custom_fields")
+}
+
+model ContactCustomField {
+  id            BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId        BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy     BigInt? @map("created_by") @db.UnsignedBigInt
+  agencyId      BigInt  @map("agency_id") @db.UnsignedBigInt
+  contactId     BigInt  @map("contact_id") @db.UnsignedBigInt
+  customFieldId BigInt  @map("custom_field_id") @db.UnsignedBigInt
+  value         String? @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user          User        @relation("ContactCustomFieldOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_custom_fields_user")
+  agency        Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_custom_fields_agency")
+  contact       Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_custom_fields_contact")
+  customField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_custom_fields_field")
+  createdByUser User?       @relation("ContactCustomFieldCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_contact_custom_fields_created_by")
+
+  @@unique([contactId, customFieldId], map: "uniq_contact_field")
+  @@index([agencyId, userId, createdBy], map: "idx_contact_custom_fields_agency_user_createdby")
+  @@map("contact_custom_fields")
+}
+
+model SendLog {
+  id           BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId     BigInt        @map("agency_id") @db.UnsignedBigInt
+  userId       BigInt?       @map("user_id") @db.UnsignedBigInt
+  createdBy    BigInt?       @map("created_by") @db.UnsignedBigInt
+  from         String?       @db.VarChar(255)
+  to           String?       @db.VarChar(255)
+  payload      String?       @db.Text
+  type         SendLogType   @default(EMAIL)
+  providerName String?       @map("provider_name") @db.VarChar(100)
+  status       SendLogStatus @default(NEW)
+  sentAt       DateTime?     @map("sent_at") @db.DateTime(3)
+  errorMessage String?       @map("error_message") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_send_logs_agency")
+  user          User?  @relation("SendLogOwnerUser", fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_send_logs_user")
+  createdByUser User?  @relation("SendLogCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_send_logs_created_by")
+
+  @@index([agencyId, userId, createdBy], map: "idx_send_logs_agency_user_createdby")
+  @@map("send_logs")
+}
+
+model MetaOauthToken {
+  id          BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  userId      BigInt      @map("user_id") @db.UnsignedBigInt
+  agencyId    BigInt      @map("agency_id") @db.UnsignedBigInt
+  accessToken String?     @map("access_token") @db.Text
+  tokenType   String?     @map("token_type") @db.Text
+  profileData String?     @map("profile_data") @db.Text
+  productType ProductType @default(WHATS_APP) @map("product_type")
+  expiredAt   DateTime?   @map("expired_at") @db.DateTime(3)
+  isRevoked   Boolean     @default(false) @map("is_revoked")
+  revokedAt   DateTime?   @map("revoked_at") @db.DateTime(3)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  phoneNumberId String? @map("phone_number_id") @db.VarChar(100)
+  wabaId        String? @map("waba_id") @db.VarChar(100)
+  businessId    String? @map("business_id") @db.VarChar(100)
+
+  // Relations
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_meta_oauth_tokens_user")
+  agency           Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_meta_oauth_tokens_agency")
+  WaBusinessNumber WaBusinessNumber[]
+  MetaDataSyncJob  MetaDataSyncJob[]
+
+  @@map("meta_oauth_tokens")
+}
+
+model Segment {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  name      String  @db.VarChar(100)
+  filters   Json
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user          User   @relation("SegmentOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_segments_user")
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_segments_agency")
+  createdByUser User?  @relation("SegmentCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_segments_created_by")
+
+  segmentContact SegmentContact[]
+  activities     Activity[] // 👈 opposite side of relation
+
+  @@unique([userId, name], name: "segments_user_id_name_key")
+  @@index([agencyId, userId, createdBy], map: "idx_segments_agency_user_createdby")
+  @@map("segments")
+}
+
+model SegmentContact {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  segmentId BigInt  @map("segment_id") @db.UnsignedBigInt
+  contactId BigInt  @map("contact_id") @db.UnsignedBigInt
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user          User    @relation("SegmentContactOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_segment_contacts_user")
+  agency        Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_segment_contacts_agency")
+  segment       Segment @relation(fields: [segmentId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_segment_contacts_segment")
+  contact       Contact @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_segment_contacts_contact")
+  createdByUser User?   @relation("SegmentContactCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_segment_contacts_created_by")
+
+  @@unique([segmentId, contactId], name: "uniq_segment_contact")
+  @@index([agencyId, userId, createdBy], map: "idx_segment_contacts_agency_user_createdby")
+  @@map("segment_contacts")
+}
+
+model SsoProvider {
+  id           BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  userId       BigInt?      @map("user_id") @db.UnsignedBigInt
+  agencyId     BigInt?      @map("agency_id") @db.UnsignedBigInt
+  providerName String?      @map("provider_name") @db.VarChar(100)
+  providerType ProviderType @default(GOOGLE) @map("provider_type")
+  clientId     String?      @map("client_id") @db.VarChar(255)
+  clientSecret String?      @map("client_secret") @db.VarChar(255)
+  redirectUrl  String?      @map("redirect_url") @db.VarChar(255)
+  providerInfo Json?        @map("provider_info")
+  createdAt    DateTime     @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime     @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_sso_providers_user")
+  agency Agency? @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_sso_providers_agency")
+
+  @@map("sso_providers")
+}
+
+model MessageTemplate {
+  id         BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  userId     BigInt           @map("user_id") @db.UnsignedBigInt
+  createdBy  BigInt?          @map("created_by") @db.UnsignedBigInt
+  agencyId   BigInt           @map("agency_id") @db.UnsignedBigInt
+  messageId  String?          @map("message_id") @db.VarChar(191)
+  wabaId     String           @map("waba_id") @db.VarChar(191)
+  name       String           @db.VarChar(512)
+  category   TemplateCategory
+  language   String           @db.VarChar(10)
+  components Json?
+  status     TemplateStatus   @default(PENDING)
+  createdAt  DateTime         @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt  DateTime         @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user          User   @relation("MessageTemplateOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_message_templates_user")
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_message_templates_agency")
+  createdByUser User?  @relation("MessageTemplateCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_message_templates_created_by")
+
+  BroadcastSetting       BroadcastSetting[]
+  messageTemplateSummary MessageTemplateSummary? @relation("TemplateToSummary")
+  activities             Activity[] // 👈 opposite side of relation
+
+  @@index([agencyId, userId, createdBy], map: "idx_message_templates_agency_user_createdby")
+  @@index([messageId], map: "idx_message_templates_message_id") // 👈 new index
+  @@map("message_templates")
+}
+
+model MessageTemplateSummary {
+  id                BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  messageTemplateId BigInt   @map("message_template_id") @db.UnsignedBigInt
+  totalSent         Int      @default(0)
+  totalRead         Int      @default(0)
+  delivered         Int      @default(0)
+  undelivered       Int      @default(0)
+  queued            Int      @default(0)
+  failed            Int      @default(0)
+  totalBroadcast    Int      @default(0)
+  createdAt         DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  messageTemplate MessageTemplate @relation("TemplateToSummary", fields: [messageTemplateId], references: [id], onDelete: Cascade, map: "fk_message_template_summary_template")
+
+  @@unique([messageTemplateId])
+  @@map("message_template_summaries")
+}
+
+model Activity {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+
+  // Classification
+  category    ActivityCategory
+  action      ActivityAction
+  description String?          @db.Text
+  meta        Json?
+
+  // Entity references (all optional, depending on activity type)
+  contactId           BigInt? @map("contact_id") @db.UnsignedBigInt
+  tagId               BigInt? @map("tag_id") @db.UnsignedBigInt
+  segmentId           BigInt? @map("segment_id") @db.UnsignedBigInt
+  triggerId           BigInt? @map("trigger_id") @db.UnsignedBigInt
+  broadcastId         BigInt? @map("broadcast_id") @db.UnsignedBigInt
+  messageTemplateId   BigInt? @map("message_template_id") @db.UnsignedBigInt
+  //fileId              BigInt?       @map("file_id") @db.UnsignedBigInt
+  //googleSheetId       BigInt?       @map("google_sheet_id") @db.UnsignedBigInt
+  //googleContactId     BigInt?       @map("google_contact_id") @db.UnsignedBigInt
+  customFieldId       BigInt? @map("custom_field_id") @db.UnsignedBigInt
+  waBusinessNumberId  BigInt? @map("wa_business_number_id") @db.UnsignedBigInt
+  waBusinessAccountId BigInt? @map("wa_business_account_id") @db.UnsignedBigInt
+  fbBusinessAccountId BigInt? @map("fb_business_account_id") @db.UnsignedBigInt
+  userSettingId       BigInt? @map("user_setting_id") @db.UnsignedBigInt
+  personalizationId   BigInt? @map("personalization_id") @db.UnsignedBigInt // 👈 new field
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  // Relations
+  agency            Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user              User?              @relation("ActivityUser", fields: [userId], references: [id])
+  createdByUser     User?              @relation("ActivityCreatedByUser", fields: [createdBy], references: [id])
+  contact           Contact?           @relation(fields: [contactId], references: [id])
+  tag               Tag?               @relation(fields: [tagId], references: [id])
+  segment           Segment?           @relation(fields: [segmentId], references: [id])
+  trigger           Trigger?           @relation(fields: [triggerId], references: [id])
+  broadcast         Broadcast?         @relation(fields: [broadcastId], references: [id])
+  messageTemplate   MessageTemplate?   @relation(fields: [messageTemplateId], references: [id])
+  //contactImportQueue  ContactImportQueue?  @relation(fields: [fileId], references: [id])
+  //googleSheet         GoogleSheet?         @relation(fields: [googleSheetId], references: [id])
+  //googleContact       GoogleContact?       @relation(fields: [googleContactId], references: [id])
+  customField       CustomField?       @relation(fields: [customFieldId], references: [id])
+  waBusinessNumber  WaBusinessNumber?  @relation(fields: [waBusinessNumberId], references: [id])
+  waBusinessAccount WaBusinessAccount? @relation(fields: [waBusinessAccountId], references: [id])
+  fbBusinessAccount FbBusinessAccount? @relation(fields: [fbBusinessAccountId], references: [id])
+  userSetting       UserSetting?       @relation(fields: [userSettingId], references: [id])
+  personalization   Personalization?   @relation(fields: [personalizationId], references: [id]) // 👈 relation
+
+  @@index([category, action])
+  @@index([createdAt])
+  @@map("activities")
+}
+
+// High-level categories (where the activity belongs)
+enum ActivityCategory {
+  CONTACT
+  TAG
+  SEGMENT
+  TRIGGER
+  BROADCAST
+  MESSAGE_TEMPLATE
+  CONTACT_FILE
+  GOOGLE_SHEET
+  GOOGLE_CONTACT
+  CUSTOM_FIELD
+  WA_BUSINESS_NUMBER
+  WA_BUSINESS_ACCOUNT
+  FB_BUSINESS_ACCOUNT
+  USER_SETTING
+  PERSONALIZATION // 👈 new category
+  TEAM
+  USER
+  SYSTEM
+  WHATSAPP
+}
+
+// Action type (what happened to that category)
+enum ActivityAction {
+  CREATE
+  UPDATE
+  DELETE
+  ASSIGN
+  REMOVE
+  EXECUTE
+  SEND
+  RECEIVE
+  PAUSE
+  RESUME
+  UNSUBSCRIBE
+  OPTOUT
+  APPROVE
+  REJECT
+  UPLOAD
+  PROCESS
+  IMPORT
+  SYNC
+  RESET
+  APPLY
+  LOGIN
+  LOGOUT
+  DELIVERED
+  READ
+  FAILED
+  ERROR
+}
+
+model Token {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  userId      BigInt    @map("user_id") @db.UnsignedBigInt
+  token       String?   @db.Text
+  expires     DateTime? @db.DateTime(3)
+  blacklisted Boolean?  @db.TinyInt
+  type        String?   @db.VarChar(111)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_tokens_user")
+
+  @@map("tokens")
+}
+
+// FB Business Accounts
+model FbBusinessAccount {
+  id         BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  userId     BigInt           @map("user_id") @db.UnsignedBigInt
+  agencyId   BigInt           @map("agency_id") @db.UnsignedBigInt
+  businessId String           @map("business_id") @db.VarChar(190)
+  name       String           @db.VarChar(255)
+  status     FbBusinessStatus @default(ACTIVE)
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_fb_business_accounts_user")
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_fb_business_accounts_agency")
+
+  waAccounts          WaBusinessAccount[]
+  broadcastMessageLog BroadcastMessageLog[]
+  activities          Activity[] // 👈 opposite side of relation
+
+  @@index([agencyId, userId], map: "idx_fb_business_accounts_agency_user")
+  @@map("fb_business_accounts")
+}
+
+// WA Business Accounts
+model WaBusinessAccount {
+  id           BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId     BigInt           @map("agency_id") @db.UnsignedBigInt
+  userId       BigInt           @map("user_id") @db.UnsignedBigInt
+  fbBusinessId BigInt           @map("fb_business_id") @db.UnsignedBigInt
+  wabaId       String           @unique @db.VarChar(190)
+  name         String           @db.VarChar(255)
+  status       WaBusinessStatus @default(ACTIVE)
+  createdAt    DateTime         @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // ➕ New field 
+  isAppSubscribed Boolean @default(false) @map("is_app_subscribed")
+
+  // Relations
+  agency     Agency            @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_accounts_agency")
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_accounts_user")
+  fbBusiness FbBusinessAccount @relation(fields: [fbBusinessId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_accounts_fb_business")
+
+  waNumbers           WaBusinessNumber[]
+  waProfiles          WaBusinessProfile[]
+  broadcastMessageLog BroadcastMessageLog[]
+  activities          Activity[] // 👈 opposite side of relation
+
+  @@index([agencyId, userId], map: "idx_wa_business_accounts_agency_user")
+  @@map("wa_business_accounts")
+}
+
+// WA Business Numbers
+model WaBusinessNumber {
+  id                     BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId               BigInt                 @map("agency_id") @db.UnsignedBigInt
+  userId                 BigInt                 @map("user_id") @db.UnsignedBigInt
+  phoneNumberId          String                 @map("phone_number_id") @db.VarChar(190)
+  waBusinessAccountId    BigInt                 @map("wa_business_account_id") @db.UnsignedBigInt
+  verifiedName           String?                @map("verified_name") @db.VarChar(255)
+  displayPhoneNumber     String?                @map("display_phone_number") @db.VarChar(20)
+  countryCode            String?                @map("country_code") @db.VarChar(10)
+  number                 String?                @db.VarChar(20)
+  qualityRating          NumberQualityRating    @default(UNKNOWN) @map("quality_rating")
+  codeVerificationStatus CodeVerificationStatus @default(NOT_VERIFIED) @map("code_verification_status")
+  numberStatus           WaNumberStatus         @default(PENDING) @map("number_status")
+  createdAt              DateTime               @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt              DateTime               @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  /// 🔹 NEW FIELDS
+  pinCode    String  @default("000000") @map("pin_code") @db.VarChar(6)
+  isRegister Boolean @default(false) @map("is_register")
+
+  // 🔹 NEW: FK to MetaOauthToken (nullable first for safe migration)
+  metaOauthTokenId BigInt?         @map("meta_oauth_token_id") @db.UnsignedBigInt
+  metaOauthToken   MetaOauthToken? @relation(fields: [metaOauthTokenId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_wa_business_numbers_meta_oauth_token")
+
+  // Relations
+  agency      Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_numbers_agency")
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_numbers_user")
+  wabaAccount WaBusinessAccount? @relation(fields: [waBusinessAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_numbers_waba_account")
+
+  broadcastMessageQueue BroadcastMessageQueue[]
+  broadcastMessageLog   BroadcastMessageLog[]
+  BroadcastSetting      BroadcastSetting[]
+  activities             Activity[]   // 👈 opposite side of relation
+  AssignedWhatsappNumber AssignedWhatsappNumber[]
+
+  @@index([agencyId, userId], map: "idx_wa_business_numbers_agency_user")
+  @@map("wa_business_numbers")
+}
+
+// WA Business Profiles
+model WaBusinessProfile {
+  id               BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId         BigInt           @map("agency_id") @db.UnsignedBigInt
+  userId           BigInt           @map("user_id") @db.UnsignedBigInt
+  wabaId           String?          @map("waba_id") @db.VarChar(190)
+  about            String?          @db.Text
+  address          String?          @db.Text
+  country          String?          @db.VarChar(190)
+  state            String?          @db.VarChar(190)
+  city             String?          @db.VarChar(255)
+  description      String?          @db.LongText
+  email            String?          @db.VarChar(255)
+  profileUrl       String?          @map("profile_url") @db.Text
+  businessCategory BusinessCategory @default(OTHER) @map("business_category")
+  websiteUrl       Json?            @map("website_url")
+  createdAt        DateTime         @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt        DateTime         @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency      Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_profiles_agency")
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_profiles_user")
+  wabaAccount WaBusinessAccount? @relation(fields: [wabaId], references: [wabaId], onDelete: Cascade, onUpdate: Cascade, map: "fk_wa_business_profiles_waba_account")
+
+  @@index([agencyId, userId], map: "idx_wa_business_profiles_agency_user")
+  @@map("wa_business_profiles")
+}
+
+// Agency Settings
+model AgencySetting {
+  id         BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId   BigInt        @map("agency_id") @db.UnsignedBigInt
+  settingKey String        @map("setting_key") @db.VarChar(190)
+  value      String?       @db.Text
+  status     SettingStatus
+  createdAt  DateTime      @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_agency_settings_agency")
+
+  @@map("agency_settings")
+}
+
+// User Settings
+model UserSetting {
+  id         BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId   BigInt        @map("agency_id") @db.UnsignedBigInt
+  userId     BigInt        @map("user_id") @db.UnsignedBigInt
+  settingKey String        @map("setting_key") @db.VarChar(190)
+  value      String        @db.Text
+  status     SettingStatus
+  createdAt  DateTime      @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_settings_agency")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_settings_user")
+
+  activities Activity[] // 👈 opposite side of relation
+
+  @@map("user_settings")
+}
+
+// Billing Transactions
+model BillingTransaction {
+  id               BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  userId           BigInt          @map("user_id") @db.UnsignedBigInt
+  createdBy        BigInt?         @map("created_by") @db.UnsignedBigInt
+  agencyId         BigInt          @map("agency_id") @db.UnsignedBigInt
+  type             TransactionType
+  creditAmount     Float           @map("credit_amount") @db.Double
+  transactionFor   String          @map("transaction_for") @db.VarChar(190)
+  billingPackageId BigInt          @map("billing_package_id") @db.UnsignedBigInt
+  note             String?         @db.VarChar(191)
+  createdAt        DateTime        @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt        DateTime        @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // New optional relations
+  contactId          BigInt? @map("contact_id") @db.UnsignedBigInt
+  conversationId     BigInt? @map("conversation_id") @db.UnsignedBigInt
+  broadcastId        BigInt? @map("broadcast_id") @db.UnsignedBigInt
+  broadcastSettingId BigInt? @map("broadcast_setting_id") @db.UnsignedBigInt
+  messagingPricingId BigInt? @map("messaging_pricing_id") @db.UnsignedBigInt
+
+  // Relations
+  user           User           @relation("BillingTransactionOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_billing_transactions_user")
+  agency         Agency         @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_billing_transactions_agency")
+  billingPackage BillingPackage @relation(fields: [billingPackageId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_billing_transactions_billing_package")
+  createdByUser  User?          @relation("BillingTransactionCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_billing_transactions_created_by")
+
+  contact          Contact?          @relation(fields: [contactId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_billing_transactions_contact")
+  conversation     Conversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_billing_transactions_conversation")
+  broadcast        Broadcast?        @relation(fields: [broadcastId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_billing_transactions_broadcast")
+  broadcastSetting BroadcastSetting? @relation(fields: [broadcastSettingId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_billing_transactions_broadcast_setting")
+  messagingPricing MessagingPricing? @relation(fields: [messagingPricingId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_billing_transactions_messaging_pricing")
+
+  @@index([agencyId, userId, createdBy], map: "idx_billing_transactions_agency_user_createdBy")
+  @@map("billing_transactions")
+}
+
+// Inbox Threads
+model InboxThread {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId          BigInt          @map("agency_id") @db.UnsignedBigInt
+  userId            BigInt          @map("user_id") @db.UnsignedBigInt
+  createdBy         BigInt?         @map("created_by") @db.UnsignedBigInt
+  contactId         BigInt          @map("contact_id") @db.UnsignedBigInt
+  contentType       String          @map("content_type") @db.VarChar(191)
+  inOut             InboxInOut      @map("in_out")
+  isRead            InboxReadStatus @map("is_read")
+  messageContent    String?         @map("message_content") @db.LongText
+  mediaUrl          String?         @map("media_url") @db.LongText
+  from              String?         @db.VarChar(191)
+  to                String?         @db.VarChar(191)
+  status            InboxStatus
+  createdAt         DateTime        @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt         DateTime        @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+  lastCommunication DateTime?       @map("last_communication")
+
+  // Relations
+  user          User    @relation("InboxThreadOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_inbox_threads_user")
+  agency        Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_inbox_threads_agency")
+  contact       Contact @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_inbox_threads_contact")
+  createdByUser User?   @relation("InboxThreadCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_inbox_threads_created_by")
+
+  @@unique([userId, contactId], map: "uniq_inbox_threads_user_contact")
+  @@index([agencyId, userId, createdBy], map: "idx_inbox_threads_agency_user_createdBy")
+  @@map("inbox_threads")
+}
+
+// Conversations
+model Conversation {
+  id               BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId         BigInt                   @map("agency_id") @db.UnsignedBigInt
+  contactId        BigInt                   @map("contact_id") @db.UnsignedBigInt
+  userId           BigInt                   @map("user_id") @db.UnsignedBigInt
+  createdBy        BigInt?                  @map("created_by") @db.UnsignedBigInt
+  broadcastId      BigInt?                  @map("broadcast_id") @db.UnsignedBigInt
+  wabaId           String?                  @map("waba_id") @db.VarChar(190)
+  wabaName         String?                  @map("waba_name") @db.VarChar(190)
+  businessId       String?                  @map("business_id") @db.VarChar(190)
+  businessName     String?                  @map("business_name") @db.VarChar(190)
+  fromNumber       String?                  @map("from_number") @db.VarChar(20)
+  toNumber         String?                  @map("to_number") @db.VarChar(20)
+  phoneNumberId    String                   @map("phone_number_id") @db.VarChar(190)
+  inOut            ConversationInOut?       @map("in_out")
+  message          String?                  @db.LongText
+  errorMessage     String?                  @map("error_message") @db.Text
+  messageId        String?                  @map("message_id") @db.VarChar(190)
+  messageType      ConversationMessageType? @map("message_type")
+  messagingProduct MessagingProduct?        @map("messaging_product")
+  response         Json?
+  status           ConversationStatus       @default(SENT)
+  isRead           ConversationReadStatus   @default(UNREAD) @map("is_read")
+  lastMessageAt    DateTime                 @default(now()) @map("last_message_at") @db.DateTime(3)
+  createdAt        DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt        DateTime                 @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  accountSid String? @map("account_sid") @db.VarChar(255)
+  messageSid String? @map("message_sid") @db.VarChar(255)
+
+  // Relations
+  user          User    @relation("ConversationOwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_conversations_user")
+  agency        Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_conversations_agency")
+  contact       Contact @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_conversations_contact")
+  createdByUser User?   @relation("ConversationCreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_conversations_created_by")
+
+  BillingTransaction BillingTransaction[]
+
+  @@index([agencyId, userId, createdBy], map: "idx_conversations_agency_user_createdBy")
+  @@index([agencyId, userId, contactId], map: "idx_conversations_agency_user_contact")
+  @@map("conversations")
+}
+
+// Broadcasts
+model Broadcast {
+  id                       BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId                 BigInt          @map("agency_id") @db.UnsignedBigInt
+  userId                   BigInt          @map("user_id") @db.UnsignedBigInt
+  createdBy                BigInt?         @map("created_by") @db.UnsignedBigInt
+  title                    String          @map("title") @db.VarChar(512)
+  status                   BroadcastStatus @default(ACTIVE)
+  createdAt                DateTime?       @map("created_at")
+  startedAt                DateTime?       @map("started_at")
+  pausedAt                 DateTime?       @map("paused_at")
+  updatedAt                DateTime?       @map("updated_at")
+  errorMessage             String?         @map("error_message") @db.VarChar(255)
+  wabaId                   String?         @map("waba_id") @db.VarChar(255)
+  totalContacted           Int             @default(0) @map("total_contacted")
+  rescheduleDueToRateLimit Boolean         @default(false) @map("reschedule_due_to_rate_limit")
+
+  // ✨ Added fields from DTO comment (with TIME columns)
+  fromDate     DateTime @map("from_date")
+  toDate       DateTime @map("to_date")
+  selectedDays Json     @map("selected_days") // e.g., ["Monday","Wednesday","Friday"]
+
+  // ➕ New column for user’s preferred time zone 
+  timeZone String @default("America/New_York") @map("time_zone") @db.VarChar(100)
+
+  startTime DateTime @map("start_time") @db.Time(0) // MySQL/Postgres TIME
+  endTime   DateTime @map("end_time") @db.Time(0)
+
+  // ➕ New enum field
+  liveMode LiveMode @default(NO) @map("live_mode")
+
+  // Relations
+  user          User   @relation("OwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_user")
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_agency")
+  createdByUser User?  @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_broadcasts_created_by")
+
+  broadcastSetting      BroadcastSetting[]
+  broadcastMessageQueue BroadcastMessageQueue[]
+  broadcastMessageLog   BroadcastMessageLog[]
+  broadcastSummaries    BroadcastSummary[]
+  BroadcastContact      BroadcastContact[]
+  activities            Activity[] // 👈 opposite side of relation
+  BillingTransaction    BillingTransaction[]
+
+  @@index([agencyId, userId, createdBy], map: "idx_broadcasts_agency_user_createdBy")
+  @@map("broadcasts")
+}
+
+model BroadcastSummary {
+  id                BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  broadcastId       BigInt   @unique @map("broadcast_id") @db.UnsignedBigInt
+  totalContact      Int      @default(0) @map("total_contact")
+  totalConnected    Int      @default(0) @map("total_connected")
+  totalPaused       Int      @default(0) @map("total_paused")
+  totalUnsubscribed Int      @default(0) @map("total_unsubscribed")
+  totalOptout       Int      @default(0) @map("total_optout")
+  createdAt         DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  broadcast Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade, map: "fk_broadcast_summary_broadcast")
+
+  @@map("broadcast_summaries")
+}
+
+// Broadcast Settings
+model BroadcastSetting {
+  id                  BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  userId              BigInt                 @map("user_id") @db.UnsignedBigInt
+  createdBy           BigInt?                @map("created_by") @db.UnsignedBigInt
+  agencyId            BigInt                 @map("agency_id") @db.UnsignedBigInt
+  broadcastId         BigInt                 @map("broadcast_id") @db.UnsignedBigInt
+  messageTemplateId   BigInt?                @map("message_template_id") @db.UnsignedBigInt
+  messageBody         String?                @map("message_body") @db.LongText
+  rateLimitEnabled    RateLimitEnabled?      @map("rate_limit_enabled")
+  limitType           LimitType              @map("limit_type")
+  status              BroadcastSettingStatus
+  broadcast_type      BroadcastType          @map("broadcast_type")
+  limitValue          Int?                   @map("limit_value")
+  day                 Int?
+  priority            Int                    @default(0) @map("priority") // 👈 added
+  time                DateTime               @map("time") @db.Time
+  retryCount          Int                    @default(3) @map("retry_count")
+  retryDelaySeconds   Int                    @default(60) @map("retry_delay_seconds")
+  pauseOnError        PauseStopOption        @map("pause_on_error")
+  stopOnLimitExceeded PauseStopOption        @map("stop_on_limit_exceeded")
+  createdAt           DateTime               @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt           DateTime               @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔹 New FK to WaBusinessNumber
+  waBusinessNumberId BigInt?           @map("wa_business_number_id") @db.UnsignedBigInt
+  waBusinessNumber   WaBusinessNumber? @relation(fields: [waBusinessNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_broadcast_setting_wa_number")
+
+  // Relations
+  user            User             @relation("OwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_setting_user")
+  agency          Agency           @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_setting_agency")
+  broadcast       Broadcast        @relation(fields: [broadcastId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_setting_broadcast")
+  messageTemplate MessageTemplate? @relation(fields: [messageTemplateId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_setting_message_template")
+  createdByUser   User?            @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_broadcast_settings_created_by")
+
+  broadcastMessageQueue BroadcastMessageQueue[]
+  broadcastMessageLog   BroadcastMessageLog[]
+  BillingTransaction    BillingTransaction[]
+
+  @@index([userId, broadcastId, priority], map: "uq_user_broadcast_priority")
+  @@index([broadcastId, broadcast_type, day, time], map: "idx_broadcast_sort")
+  @@map("broadcast_settings")
+}
+
+// Broadcast Message Queue
+model BroadcastMessageQueue {
+  id                 BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId           BigInt                   @map("agency_id") @db.UnsignedBigInt
+  userId             BigInt                   @map("user_id") @db.UnsignedBigInt
+  createdBy          BigInt?                  @map("created_by") @db.UnsignedBigInt
+  contactId          BigInt                   @map("contact_id") @db.UnsignedBigInt
+  broadcastId        BigInt                   @map("broadcast_id") @db.UnsignedBigInt
+  broadcastSettingId BigInt                   @map("broadcast_setting_id") @db.UnsignedBigInt
+  waBusinessNumberId BigInt                   @map("wa_business_number_id") @db.UnsignedBigInt
+  status             QueueStatus
+  sentAt             DateTime                 @default(now()) @map("sent_at")
+  failedReason       String?                  @map("failed_reason") @db.LongText
+  response           Json?
+  messageType        ConversationMessageType? @map("message_type")
+  messagingProduct   MessagingProduct?        @map("messaging_product")
+  createdAt          DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt          DateTime                 @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  agency           Agency           @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bmq_agency")
+  user             User             @relation("OwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bmq_user")
+  contact          Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bmq_contact")
+  broadcast        Broadcast        @relation(fields: [broadcastId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bmq_broadcast")
+  broadcastSetting BroadcastSetting @relation(fields: [broadcastSettingId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bmq_broadcast_setting")
+  waBusinessNumber WaBusinessNumber @relation(fields: [waBusinessNumberId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bmq_wa_business_number")
+  createdByUser    User?            @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_broadcast_message_queues_created_by")
+
+  // 🔒 Unique constraint
+  @@unique([broadcastId, broadcastSettingId, contactId], map: "uq_bmq_broadcast_setting_contact")
+  @@map("broadcast_message_queues")
+}
+
+// Broadcast Message Logs
+model BroadcastMessageLog {
+  id                  BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId            BigInt                   @map("agency_id") @db.UnsignedBigInt
+  userId              BigInt                   @map("user_id") @db.UnsignedBigInt
+  createdBy           BigInt?                  @map("created_by") @db.UnsignedBigInt
+  contactId           BigInt                   @map("contact_id") @db.UnsignedBigInt
+  broadcastId         BigInt?                  @map("broadcast_id") @db.UnsignedBigInt
+  broadcastSettingId  BigInt?                  @map("broadcast_setting_id") @db.UnsignedBigInt
+  waBusinessAccountId BigInt?                  @map("wa_business_account_id") @db.UnsignedBigInt
+  fbBusinessId        BigInt?                  @map("fb_business_id") @db.UnsignedBigInt
+  waBusinessNumberId  BigInt?                  @map("wa_business_number_id") @db.UnsignedBigInt
+  message             String?                  @db.LongText
+  messagingProduct    MessagingProduct?        @map("messaging_product")
+  messageType         ConversationMessageType? @map("message_type")
+  response            Json?
+  errorMessage        String?                  @map("error_message") @db.VarChar(190)
+  status              BroadcastLogStatus       @default(SENT)
+  lastMessageAt       DateTime                 @default(now()) @map("last_message_at") @db.DateTime(3)
+  createdAt           DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt           DateTime                 @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  accountSid String? @map("account_sid") @db.VarChar(255)
+  messageSid String? @map("message_sid") @db.VarChar(255)
+
+  // Relations
+  agency            Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_agency")
+  user              User               @relation("OwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_user")
+  contact           Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_contact")
+  broadcast         Broadcast?         @relation(fields: [broadcastId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_broadcast")
+  broadcastSetting  BroadcastSetting?  @relation(fields: [broadcastSettingId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_broadcast_setting")
+  waBusinessAccount WaBusinessAccount? @relation(fields: [waBusinessAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_wa_business_account")
+  fbBusiness        FbBusinessAccount? @relation(fields: [fbBusinessId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_fb_business")
+  waBusinessNumber  WaBusinessNumber?  @relation(fields: [waBusinessNumberId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bml_wa_business_number")
+  createdByUser     User?              @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_broadcast_message_logs_created_by")
+
+  @@map("broadcast_message_logs")
+}
+
+// Integrations
+model Integration {
+  id           BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  userId       BigInt            @map("user_id") @db.UnsignedBigInt
+  agencyId     BigInt            @map("agency_id") @db.UnsignedBigInt
+  type         IntegrationType
+  name         String?           @db.VarChar(191)
+  accessToken  String?           @map("access_token") @db.Text
+  refreshToken String?           @map("refresh_token") @db.Text
+  expiresAt    DateTime?         @map("expires_at")
+  accountEmail String?           @map("account_email") @db.VarChar(255) // NEW: track connected Gmail account
+  config       Json?
+  status       IntegrationStatus @default(ACTIVE)
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at")
+  lastUsedAt   DateTime?         @map("last_used_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_integrations_user")
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_integrations_agency")
+
+  @@index([type])
+  @@index([accountEmail]) // NEW: fast lookup for multi-account scenario
+  @@map("integrations")
+}
+
+model UserCardInfo {
+  id           BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  userId       BigInt             @map("user_id") @db.UnsignedBigInt
+  agencyId     BigInt             @map("agency_id") @db.UnsignedBigInt
+  cardNumber   String             @map("card_number") @db.VarChar(191)
+  customerId   String?            @map("customer_id") @db.VarChar(191)
+  token        String?            @db.VarChar(191)
+  cardBrand    String?            @map("card_brand") @db.VarChar(50)
+  cardExpMonth Int?               @map("card_exp_month")
+  cardExpYear  Int?               @map("card_exp_year")
+  status       UserCardInfoStatus @default(ACTIVE)
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_card_infos_user")
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_card_infos_agency")
+
+  UserAutoRechargeHistory UserAutoRechargeHistory[]
+
+  @@map("user_card_infos")
+}
+
+model StripeWebhookEvents {
+  id              BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  userId          BigInt?       @map("user_id") @db.UnsignedBigInt
+  agencyId        BigInt?       @map("agency_id") @db.UnsignedBigInt
+  json            Json
+  errorMsg        String?       @map("error_msg") @db.Text
+  status          WebhookStatus
+  stripeSignature String        @map("stripe_sigature")
+  stripeEventType String        @map("stripe_event_type")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_stripe_webhook_events_user")
+  agency Agency? @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_stripe_webhook_events_agency")
+
+  @@map("stripe_webhook_events")
+}
+
+model UserPackagesHistory {
+  id              BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  userPackageId   BigInt                    @map("user_package_id") @db.UnsignedBigInt
+  userId          BigInt                    @map("user_id") @db.UnsignedBigInt
+  agencyId        BigInt                    @map("agency_id") @db.UnsignedBigInt
+  packageId       BigInt                    @map("package_id") @db.UnsignedBigInt
+  status          UserPackagesHistoryStatus
+  startDate       DateTime                  @map("start_date")
+  nextBillingDate DateTime                  @map("next_billing_date")
+  createdAt       DateTime                  @default(now()) @map("created_at")
+  updatedAt       DateTime                  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_packages_histories_user")
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_packages_histories_agency")
+
+  @@map("user_packages_histories")
+}
+
+model UserPackageRenewHistory {
+  id           BigInt                        @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId     BigInt                        @map("agency_id") @db.UnsignedBigInt
+  userId       BigInt                        @map("user_id") @db.UnsignedBigInt
+  cardInfoId   BigInt?                       @map("card_info_id") @db.UnsignedBigInt
+  packageId    BigInt                        @map("package_id") @db.UnsignedBigInt
+  chargeAmount Decimal                       @map("charge_amount") @db.Decimal(12, 2)
+  status       UserPackageRenewHistoryStatus @default(SUCCESS)
+  failReason   String?                       @map("fail_reason") @db.VarChar(255)
+  createdAt    DateTime                      @default(now()) @map("created_at")
+  updatedAt    DateTime                      @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_package_renew_histories_user")
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_package_renew_histories_agency")
+
+  @@map("user_package_renew_histories")
+}
+
+model Tag {
+  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  userId      BigInt   @map("user_id") @db.UnsignedBigInt
+  createdBy   BigInt?  @map("created_by") @db.UnsignedBigInt
+  agencyId    BigInt   @map("agency_id") @db.UnsignedBigInt
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user          User         @relation("OwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_tags_user")
+  agency        Agency       @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_tags_agency")
+  createdByUser User?        @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_tags_created_by")
+  contacts      ContactTag[]
+  activities    Activity[] // 👈 opposite side of relation
+
+  // Unique constraint: title must be unique within the same agency
+  @@unique([userId, title])
+  @@index([agencyId, userId, createdBy], map: "idx_tags_agency_user_createdBy")
+  @@map("tags")
+}
+
+model ContactTag {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+  contactId BigInt  @map("contact_id") @db.UnsignedBigInt
+  tagId     BigInt  @map("tag_id") @db.UnsignedBigInt
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  contact       Contact @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_tags_contact")
+  tag           Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_tags_tag")
+  agency        Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_tags_agency")
+  user          User    @relation("OwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_tags_user")
+  createdByUser User?   @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_contact_tags_created_by")
+
+  @@unique([contactId, tagId], name: "uniq_contact_tag")
+  @@index([agencyId, userId, createdBy], map: "idx_contact_tags_agency_user_createdBy")
+  @@map("contact_tags")
+}
+
+model ContactAssignment {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId   BigInt   @map("agency_id") @db.UnsignedBigInt
+  userId     BigInt   @map("user_id") @db.UnsignedBigInt
+  contactId  BigInt   @map("contact_id") @db.UnsignedBigInt
+  assignedBy BigInt?  @map("assigned_by") @db.UnsignedBigInt // Admin or Team Leader who assigned this contact
+  assignedTo BigInt?  @map("assigned_to") @db.UnsignedBigInt // User who the contact is assigned to
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // 🔗 Relations with consistent relation naming
+  user           User    @relation("ContactAssignmentOwner", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_assignments_user")
+  contact        Contact @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_assignments_contact")
+  agency         Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_contact_assignments_agency")
+  assignedByUser User?   @relation("AssignedByUser", fields: [assignedBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_contact_assignments_assigned_by")
+  assignedToUser User?   @relation("AssignedToUser", fields: [assignedTo], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_contact_assignments_assigned_to")
+
+  @@unique([assignedTo, contactId], name: "uniq_contact_assignment")
+  @@index([agencyId, userId, assignedTo], map: "idx_tags_agency_user_assignedTo")
+  @@map("contact_assignments")
+}
+
+model UserNotificationToken {
+  id       BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId BigInt    @map("agency_id") @db.UnsignedBigInt
+  userId   BigInt    @map("user_id") @db.UnsignedBigInt
+  token    String
+  type     TokenType @default(FCM)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations with explicit FK mappings
+  user   User   @relation(fields: [userId], references: [id], map: "fk_user_notification_tokens_user", onDelete: Cascade, onUpdate: Cascade)
+  agency Agency @relation(fields: [agencyId], references: [id], map: "fk_user_notification_tokens_agency", onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("user_notification_tokens")
+}
+
+model Notification {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+
+  type         NotificationType
+  title        String?
+  message      String
+  data         Json?
+  read         Boolean          @default(false)
+  readAt       DateTime?
+  navigatePath String?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations (Foreign Keys)
+  agency        Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_notifications_agency")
+  user          User   @relation("UserToNotification", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_notifications_user")
+  createdByUser User?  @relation("CreatedByNotification", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_notifications_created_by")
+
+  @@index([agencyId, userId, createdBy], map: "idx_notifications_agency_user_createdBy")
+  @@map("notifications")
+}
+
+model CronJob {
+  id              BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String
+  jobId           String        @unique @map("job_id")
+  status          CronJobStatus
+  lastProcessedAt DateTime      @map("last_processed_at")
+  nextProcessAt   DateTime      @map("next_process_at")
+  message         String
+  pattern         String
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  @@map("cron_jobs")
+}
+
+model UserAutoRechargeHistory {
+  id           BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  userId       BigInt                 @map("user_id") @db.UnsignedBigInt
+  cardInfoId   BigInt?                @map("card_info_id") @db.UnsignedBigInt
+  packageId    BigInt?                @map("package_id") @db.UnsignedBigInt
+  chargeAmount BigInt?                @map("charge_amount")
+  status       UserAutoRechargeStatus @default(SUCCESS)
+  failReason   String?                @map("fail_reason") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations with FK mapping
+  user     User            @relation(fields: [userId], references: [id], map: "fk_uarh_user", onDelete: Cascade, onUpdate: Cascade)
+  cardInfo UserCardInfo?   @relation(fields: [cardInfoId], references: [id], map: "fk_uarh_card_info", onDelete: SetNull, onUpdate: Cascade)
+  package  BillingPackage? @relation(fields: [packageId], references: [id], map: "fk_uarh_package", onDelete: SetNull, onUpdate: Cascade)
+
+  @@map("user_auto_recharge_histories")
+}
+
+// Model
+model MetaDataSyncJob {
+  id          BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  userId      BigInt                @map("user_id") @db.UnsignedBigInt
+  type        MetadataSyncJobType   @default(ACCOUNT)
+  status      MetadataSyncJobStatus @default(PENDING)
+  tryAttempt  Int                   @default(0) @map("try_attempt") @db.UnsignedTinyInt
+  failMessage String?               @map("fail_message") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // ➕ New nullable FK column
+  metaOauthTokenId BigInt? @map("meta_oauth_token_id") @db.UnsignedBigInt
+
+  // 🔗 Relations
+  user           User            @relation(fields: [userId], references: [id], map: "fk_meta_data_sync_jobs_user", onDelete: Cascade, onUpdate: Cascade)
+  metaOauthToken MetaOauthToken? @relation(fields: [metaOauthTokenId], references: [id], map: "fk_meta_data_sync_jobs_oauth_token", onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([userId], name: "idx_meta_data_sync_jobs_user")
+  @@index([metaOauthTokenId], name: "idx_meta_data_sync_jobs_oauth_token")
+  @@map("meta_data_sync_jobs")
+}
+
+model UserRequest {
+  id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+
+  type        RequestType   @default(CANCEL_SUBSCRIPTION)
+  requestAt   DateTime      @map("request_at")
+  scheduleAt  DateTime?     @map("schedule_at")
+  requestBody Json?
+  status      RequestStatus @default(QUEUE)
+  message     String?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_requests_agency")
+
+  // 🧩 Relation 1 — The user who owns or is the subject of the request
+  user User @relation("UserToUserRequest", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_requests_user")
+
+  // 🧩 Relation 2 — The user who created/initiated this request
+  createdByUser User? @relation("CreatedByUserRequest", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_user_requests_created_by")
+
+  // 🧩 One-to-many relationship with logs
+  UserRequestLogs UserRequestLog[]
+
+  // 🧭 Indexes
+  @@index([agencyId, userId, createdBy], map: "idx_user_requests_agency_user_createdby")
+  @@map("user_requests")
+}
+
+model UserRequestLog {
+  id            BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId      BigInt @map("agency_id") @db.UnsignedBigInt
+  userId        BigInt @map("user_id") @db.UnsignedBigInt
+  userRequestId BigInt @map("user_request_id") @db.UnsignedBigInt
+
+  type        RequestType      @default(CANCEL_SUBSCRIPTION)
+  requestData Json?            @map("request_data")
+  message     String?
+  status      RequestLogStatus @default(QUEUE)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations
+  agency      Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_request_logs_agency")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_request_logs_user")
+  userRequest UserRequest @relation(fields: [userRequestId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_user_request_logs_user_request")
+
+  // 🧭 Indexes
+  @@index([agencyId, userId, userRequestId, status], map: "idx_user_request_logs_agency_user_request_status")
+  @@map("user_request_logs")
+}
+
+// ===================================================
+// ⚙️ REQUEST MANAGEMENT ENUMS
+// ===================================================
+
+model OptOutContact {
+  id        BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId  BigInt  @map("agency_id") @db.UnsignedBigInt
+  userId    BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy BigInt? @map("created_by") @db.UnsignedBigInt
+  contactId BigInt  @map("contact_id") @db.UnsignedBigInt
+  reason    String? @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_opt_out_contacts_agency")
+
+  // 🧩 Relation 1 — user who owns or manages the contact
+  user User @relation("UserToOptOutContact", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_opt_out_contacts_user")
+
+  // 🧩 Relation 2 — user who created/triggered the opt-out
+  createdByUser User? @relation("CreatedByOptOutContact", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_opt_out_contacts_created_by")
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_opt_out_contacts_contact")
+
+  @@unique([agencyId, userId, contactId], name: "uniq_opt_out_contact")
+  @@map("opt_out_contacts")
+}
+
+/// ================================
+/// ⚡ Trigger Automation System
+/// ================================
+
+model Trigger {
+  id          BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId    BigInt        @map("agency_id") @db.UnsignedBigInt
+  userId      BigInt        @map("user_id") @db.UnsignedBigInt
+  createdBy   BigInt?       @map("created_by") @db.UnsignedBigInt
+  title       String        @db.VarChar(255)
+  description String?       @db.VarChar(1000)
+  status      TriggerStatus @default(ACTIVE)
+  priority    Int           @default(0)
+  timezone    String?       @db.VarChar(50)
+  metadata    Json?
+  version     Int           @default(1)
+  updatedBy   BigInt?       @map("updated_by") @db.UnsignedBigInt
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  deletedAt DateTime? @map("deleted_at")
+
+  // ➕ New enum field
+  liveMode LiveMode @default(NO) @map("live_mode")
+
+  // 🔗 Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_agency")
+
+  // 🧩 Relation 1 — User who owns or manages the trigger
+  user User @relation("UserToTrigger", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_user")
+
+  // 🧩 Relation 2 — User who created the trigger
+  createdByUser User? @relation("CreatedByTrigger", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_trigger_created_by")
+
+  TriggerEventConfig             TriggerEventConfig[]
+  TriggerActionConfig            TriggerActionConfig[]
+  TriggerEventExecutionLog       TriggerEventExecutionLog[]
+  TriggerEventActionExecutionLog TriggerEventActionExecutionLog[]
+  activities                     Activity[] // 👈 opposite side of relation
+
+  @@index([agencyId, userId, createdBy], map: "idx_triggers_agency_user_createdBy")
+  @@map("triggers")
+}
+
+model TriggerAction {
+  id          BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  key         String  @unique @db.VarChar(100)
+  title       String  @db.VarChar(255)
+  description String? @db.VarChar(1000)
+  metadata    Json?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  TriggerActionConfig            TriggerActionConfig[]
+  TriggerEventActionExecutionLog TriggerEventActionExecutionLog[]
+
+  @@index([key], name: "idx_trigger_action_key")
+  @@index([title], name: "idx_trigger_action_title")
+  @@map("trigger_actions")
+}
+
+model TriggerEvent {
+  id             BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  key            String  @unique @db.VarChar(100)
+  title          String  @db.VarChar(255)
+  description    String? @db.VarChar(1000)
+  metadata       Json?
+  allowedActions Json? // <-- Use JSON for arrays in MySQL
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  TriggerEventConfig             TriggerEventConfig[]
+  TriggerEventExecutionLog       TriggerEventExecutionLog[]
+  TriggerEventActionExecutionLog TriggerEventActionExecutionLog[]
+  TriggerActionConfig            TriggerActionConfig[]
+
+  @@index([key], name: "idx_trigger_event_key")
+  @@index([title], name: "idx_trigger_event_title")
+  @@map("trigger_events")
+}
+
+model TriggerEventConfig {
+  id             BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId       BigInt  @map("agency_id") @db.UnsignedBigInt
+  userId         BigInt  @map("user_id") @db.UnsignedBigInt
+  triggerId      BigInt  @map("trigger_id") @db.UnsignedBigInt
+  triggerEventId BigInt  @map("trigger_event_id") @db.UnsignedBigInt
+  createdBy      BigInt? @map("created_by") @db.UnsignedBigInt
+  updatedBy      BigInt? @map("updated_by") @db.UnsignedBigInt
+  filters        Json?
+  configs        Json?   @default("{}") // Structured as { key: string, title: string }
+  version        Int     @default(1)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  deletedAt DateTime? @map("deleted_at")
+
+  // 🔗 Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_configs_agency")
+
+  // 🧩 Relation 1 — User who owns this event config
+  user User @relation("UserToTriggerEventConfig", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_configs_user")
+
+  // 🧩 Relation 2 — User who created this event config 
+  createdByUser User? @relation("CreatedByTriggerEventConfig", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_trigger_event_configs_created_by")
+
+  trigger Trigger      @relation(fields: [triggerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_configs_trigger")
+  event   TriggerEvent @relation(fields: [triggerEventId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_configs_event")
+
+  // Child Relations
+  TriggerActionConfig            TriggerActionConfig[]
+  TriggerEventExecutionLog       TriggerEventExecutionLog[]
+  TriggerEventActionExecutionLog TriggerEventActionExecutionLog[]
+
+  @@unique([triggerId, triggerEventId], name: "uniq_trigger_id_event_id")
+  @@index([agencyId, userId, createdBy], map: "idx_trigger_event_configs_agency_user_createdBy")
+  @@map("trigger_event_configs")
+}
+
+model TriggerActionConfig {
+  id                   BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId             BigInt  @map("agency_id") @db.UnsignedBigInt
+  userId               BigInt  @map("user_id") @db.UnsignedBigInt
+  createdBy            BigInt? @map("created_by") @db.UnsignedBigInt
+  updatedBy            BigInt? @map("updated_by") @db.UnsignedBigInt
+  triggerId            BigInt  @map("trigger_id") @db.UnsignedBigInt
+  triggerEventId       BigInt  @map("trigger_event_id") @db.UnsignedBigInt
+  triggerEventConfigId BigInt  @map("trigger_event_config_id") @db.UnsignedBigInt
+  actionId             BigInt  @map("action_id") @db.UnsignedBigInt
+  configs              Json?   @default("{}") // Structured as per action config
+  version              Int     @default(1)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  deletedAt DateTime? @map("deleted_at")
+
+  // 🔗 Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_action_configs_agency")
+
+  // 🧩 Relation 1 — The user who owns or executes the trigger action
+  user User @relation("UserToTriggerActionConfig", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_action_configs_user")
+
+  // 🧩 Relation 2 — The user who created or configured the trigger action
+  createdByUser User? @relation("CreatedByTriggerActionConfig", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_trigger_action_configs_created_by")
+
+  trigger            Trigger            @relation(fields: [triggerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_action_configs_trigger")
+  triggerEvent       TriggerEvent       @relation(fields: [triggerEventId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_action_configs_event")
+  triggerEventConfig TriggerEventConfig @relation(fields: [triggerEventConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_action_configs_event_config")
+  triggerAction      TriggerAction      @relation(fields: [actionId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_action_configs_action")
+
+  TriggerEventActionExecutionLog TriggerEventActionExecutionLog[]
+
+  @@unique([triggerId, triggerEventId, triggerEventConfigId, actionId], name: "uniq_trigger_action_configs_trigger_event_config_action")
+  @@index([agencyId, userId, createdBy], map: "idx_trigger_action_configs_agency_user_createdby")
+  @@map("trigger_action_configs")
+}
+
+model TriggerEventExecutionLog {
+  id                   BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId             BigInt                         @map("agency_id") @db.UnsignedBigInt
+  userId               BigInt                         @map("user_id") @db.UnsignedBigInt
+  triggerId            BigInt                         @map("trigger_id") @db.UnsignedBigInt
+  triggerEventId       BigInt                         @map("trigger_event_id") @db.UnsignedBigInt
+  triggerEventConfigId BigInt                         @map("trigger_event_config_id") @db.UnsignedBigInt
+  contactId            BigInt                         @map("contact_id") @db.UnsignedBigInt
+  status               TriggerEventExecutionLogStatus @default(FAILED) @map("status")
+  error                String?                        @map("error") @db.VarChar(1000)
+  executedAt           DateTime                       @default(now()) @map("executed_at")
+
+  // 🔗 Relations
+  agency             Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_execution_logs_agency")
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_execution_logs_user")
+  trigger            Trigger            @relation(fields: [triggerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_execution_logs_trigger")
+  triggerEvent       TriggerEvent       @relation(fields: [triggerEventId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_execution_logs_event")
+  triggerEventConfig TriggerEventConfig @relation(fields: [triggerEventConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_execution_logs_event_config")
+  contact            Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_execution_logs_contact")
+
+  // 🔒 Indexes
+  @@index([agencyId, userId, triggerId, triggerEventId, triggerEventConfigId], map: "idx_trigger_event_execution_logs_agency_user_trigger_event")
+  @@map("trigger_event_execution_logs")
+}
+
+model TriggerEventActionExecutionLog {
+  id                    BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId              BigInt                         @map("agency_id") @db.UnsignedBigInt
+  userId                BigInt                         @map("user_id") @db.UnsignedBigInt
+  triggerId             BigInt                         @map("trigger_id") @db.UnsignedBigInt
+  triggerEventId        BigInt                         @map("trigger_event_id") @db.UnsignedBigInt
+  triggerEventConfigId  BigInt                         @map("trigger_event_config_id") @db.UnsignedBigInt
+  triggerActionId       BigInt                         @map("trigger_action_id") @db.UnsignedBigInt
+  triggerActionConfigId BigInt                         @map("trigger_action_config_id") @db.UnsignedBigInt
+  contactId             BigInt                         @map("contact_id") @db.UnsignedBigInt
+  error                 String?                        @map("error") @db.VarChar(1000)
+  executedAt            DateTime                       @default(now()) @map("executed_at")
+  status                TriggerEventExecutionLogStatus @default(FAILED) @map("status")
+
+  // 🔗 Relations
+  agency              Agency              @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_agency")
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_user")
+  trigger             Trigger             @relation(fields: [triggerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_trigger")
+  triggerEvent        TriggerEvent        @relation(fields: [triggerEventId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_event")
+  triggerEventConfig  TriggerEventConfig  @relation(fields: [triggerEventConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_event_config")
+  triggerAction       TriggerAction       @relation(fields: [triggerActionId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_action")
+  triggerActionConfig TriggerActionConfig @relation(fields: [triggerActionConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_action_config")
+  contact             Contact             @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_trigger_event_action_execution_logs_contact")
+
+  // 🔒 Indexes
+  @@index([agencyId, userId, triggerId, triggerEventId, triggerEventConfigId, triggerActionId, triggerActionConfigId], map: "idx_agency_user_trigger_event_action")
+  @@map("trigger_event_action_execution_logs")
+}
+
+// ===================================================
+// 🎯 TRIGGER & EVENT EXECUTION ENUMS
+// ===================================================
+
+model GmailImportedContact {
+  id             BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId       BigInt @map("agency_id") @db.UnsignedBigInt
+  userId         BigInt @map("user_id") @db.UnsignedBigInt
+  createdBy      BigInt @map("created_by") @db.UnsignedBigInt
+  contactId      BigInt @map("contact_id") @db.UnsignedBigInt
+  gmailAccountId BigInt @map("gmail_account_id") @db.UnsignedBigInt
+  gmailId        String @map("gmail_id") // Google People API contact resourceName like "people/c12345"
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_gmail_imported_contacts_agency")
+
+  // 🧩 Relation 1 — the user who owns/imports this contact
+  user User @relation("UserToGmailImportedContact", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_gmail_imported_contacts_user")
+
+  // 🧩 Relation 2 — the user who created or triggered this import
+  createdByUser User @relation("CreatedByGmailImportedContact", fields: [createdBy], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_gmail_imported_contacts_created_by")
+
+  contact      Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_gmail_imported_contacts_contact")
+  GmailAccount GmailAccount @relation(fields: [gmailAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_gmail_imported_contacts_gmail_account")
+
+  @@unique([contactId, gmailAccountId], map: "uq_gmail_contact_user") // Prevents duplicate import of same Gmail contact for same user
+  @@index([agencyId, userId, gmailAccountId, createdBy], map: "idx_gmail_imported_contacts_agency_user_gmailAccount_createdBy")
+  @@map("gmail_imported_contacts")
+}
+
+model GmailAccount {
+  id       BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId BigInt @map("agency_id") @db.UnsignedBigInt
+  userId   BigInt @map("user_id") @db.UnsignedBigInt
+
+  email        String    @unique @db.VarChar(255) // Gmail address
+  accessToken  String    @map("access_token") @db.Text
+  refreshToken String?   @map("refresh_token") @db.Text
+  expiresAt    DateTime? @map("expires_at") // Token expiry
+  lastSyncAt   DateTime? @map("last_sync_at")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_gmail_accounts_user")
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade, map: "fk_gmail_accounts_agency")
+
+  GmailImportedContact GmailImportedContact[]
+
+  @@index([agencyId, userId], map: "idx_gmail_accounts_agency_user")
+  @@map("gmail_accounts")
+}
+
+model BroadcastContactEntryQueue {
+  id            BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId      BigInt                      @map("agency_id") @db.UnsignedBigInt
+  userId        BigInt                      @map("user_id") @db.UnsignedBigInt
+  createdBy     BigInt                      @map("created_by") @db.UnsignedBigInt
+  broadcastId   BigInt                      @map("broadcast_id") @db.UnsignedBigInt
+  contactId     BigInt?                     @map("contact_id") @db.UnsignedBigInt
+  sourceId      BigInt?                     @map("source_id") @db.UnsignedBigInt
+  contactSource BroadcastContactQueueSource @default(CONTACT) @map("contact_source")
+  status        EntryStatus                 @default(PENDING) @map("status")
+  failedReason  String?                     @map("failed_reason") @db.VarChar(255)
+  requestedAt   DateTime?                   @default(now()) @map("requested_at") @db.DateTime(3)
+  processedAt   DateTime?                   @map("processed_at") @db.DateTime(3)
+
+  // ✅ New indexes
+  @@index([status], map: "idx_broadcast_contact_entry_status")
+  @@index([agencyId, userId, broadcastId], map: "idx_broadcast_contact_entry_agency_user_broadcast")
+  @@map("broadcast_contact_entry_queues")
+}
+
+// ===================================================
+// 📤 BROADCAST CONTACT ENTRY QUEUE ENUMS
+// ===================================================
+
+model BroadcastContact {
+  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId             BigInt                 @map("agency_id") @db.UnsignedBigInt
+  userId               BigInt                 @map("user_id") @db.UnsignedBigInt
+  createdBy            BigInt?                @map("created_by") @db.UnsignedBigInt
+  broadcastId          BigInt                 @map("broadcast_id") @db.UnsignedBigInt
+  contactId            BigInt                 @map("contact_id") @db.UnsignedBigInt
+  entryDate            DateTime               @map("entry_date")
+  contactSource        BroadcastContactSource @default(SINGLE) @map("contact_source")
+  status               BroadcastContactStatus @map("status")
+  lastMessageAt        DateTime?              @map("last_message_at")
+  nextAllowedMessageAt DateTime?              @map("next_allowed_message_at")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations (Foreign Keys)
+  agency        Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_contacts_agency")
+  contact       Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_contacts_contact")
+  broadcast     Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_contacts_broadcast")
+  // 🧩 Relation 1 → The primary user (owner or executor)
+  user          User      @relation("UserToBroadcastContact", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_broadcast_contacts_user")
+  // 🧩 Relation 2 → The user who created this record
+  createdByUser User?     @relation("CreatedByUserToBroadcastContact", fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_broadcast_contacts_created_by")
+
+  @@unique([broadcastId, contactId], name: "uniq_broadcast_contact")
+  @@index([agencyId, userId, broadcastId], map: "idx_broadcast_contacts_agency_user_broadcast")
+  @@map("broadcast_contacts")
+}
+
+model BroadcastPauseResumeRequest {
+  id           BigInt                            @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId     BigInt                            @map("agency_id") @db.UnsignedBigInt
+  userId       BigInt                            @map("user_id") @db.UnsignedBigInt
+  createdBy    BigInt                            @map("created_by") @db.UnsignedBigInt
+  broadcastId  BigInt                            @map("broadcast_id") @db.UnsignedBigInt
+  action       PauseResumeAction                 @map("action")
+  status       BroadcastPauseResumeRequestStatus @map("status")
+  failedReason String?                           @map("failed_reason")
+  requestedAt  DateTime                          @default(now()) @map("requested_at")
+  processedAt  DateTime?                         @map("processed_at")
+
+  // ✅ New indexes
+  @@index([status], map: "idx_broadcast_pause_resume_status")
+  @@index([agencyId, userId, broadcastId], map: "idx_broadcast_pause_resume_agency_user_broadcast")
+  @@map("broadcast_pause_resume_requests")
+}
+
+model ContactPauseResumeRequest {
+  id           BigInt                          @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId     BigInt                          @map("agency_id") @db.UnsignedBigInt
+  userId       BigInt                          @map("user_id") @db.UnsignedBigInt
+  createdBy    BigInt                          @map("created_by") @db.UnsignedBigInt
+  broadcastId  BigInt                          @map("broadcast_id") @db.UnsignedBigInt
+  contactId    BigInt                          @map("contact_id") @db.UnsignedBigInt
+  action       ContactAction                   @map("action")
+  status       ContactPauseResumeRequestStatus @map("status")
+  failedReason String                          @map("failed_reason")
+  requestedAt  DateTime?                       @map("requested_at")
+  processedAt  DateTime?                       @map("processed_at")
+
+  @@index([status], map: "idx_contact_pause_resume_status")
+  @@index([agencyId, userId, broadcastId], map: "idx_contact_pause_resume_agency_user_broadcast")
+  @@map("contact_pause_resume_requests")
+}
+
+model WebhookDataProcess {
+  id                 BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  userId             BigInt? @map("user_id") @db.UnsignedBigInt
+  agencyId           BigInt? @map("agency_id") @db.UnsignedBigInt
+  contactId          BigInt? @map("contact_id") @db.UnsignedBigInt
+  broadcastId        BigInt? @map("broadcast_id") @db.UnsignedBigInt
+  broadcastSettingId BigInt? @map("broadcast_setting_id") @db.UnsignedBigInt
+
+  rawData      Json                 @map("raw_data")
+  status       WebhookProcessStatus @default(QUEUE) @map("status")
+  errorMessage String?              @map("error_message") @db.VarChar(1024)
+  gateway      Gateway              @default(Other) // New field with default value
+
+  // new fields
+  direction  WebhookDirection @default(Other)
+  accountSid String?          @map("account_sid") @db.VarChar(255)
+  messageSid String?          @map("message_sid") @db.VarChar(255)
+
+  from String? @map("from") @db.VarChar(100)
+  to   String? @map("to") @db.VarChar(100)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // compound index
+  @@index([status, direction], map: "idx_status_direction")
+  @@index([agencyId, userId, accountSid, contactId], map: "idx_agency_user_account_contact")
+  @@map("webhook_data_processes")
+}
+
+model ContactForwardQueue {
+  id                 BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId           BigInt @map("agency_id") @db.UnsignedBigInt
+  userId             BigInt @map("user_id") @db.UnsignedBigInt
+  broadcastId        BigInt @map("broadcast_id") @db.UnsignedBigInt
+  contactId          BigInt @map("contact_id") @db.UnsignedBigInt
+  broadcastSettingId BigInt @map("broadcast_setting_id") @db.UnsignedBigInt
+
+  status ContactForwardQueueStatus @default(PENDING)
+
+  requestedAt  DateTime? @default(now()) @map("requested_at") @db.DateTime(3)
+  processedAt  DateTime? @map("processed_at") @db.DateTime(3)
+  failedReason String?   @map("failed_reason") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  @@index([status], map: "idx_status")
+  @@map("contact_forward_queues")
+}
+
+model MessagingPricing {
+  id          BigInt             @id @default(autoincrement()) @map("id") @db.UnsignedBigInt
+  packageId   BigInt             @map("package_id") @db.UnsignedBigInt
+  userId      BigInt?            @map("user_id") @db.UnsignedBigInt
+  price       Float              @map("price") // using Double
+  priceType   PriceType          @map("price_type")
+  messageType PricingMessageType @map("message_type")
+  inOut       InOut              @map("in_out")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations
+  package            BillingPackage       @relation(fields: [packageId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_messaging_pricing_package")
+  user               User?                @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_messaging_pricing_user")
+  BillingTransaction BillingTransaction[]
+
+  // 🔒 Unique constraint
+  @@index([packageId, messageType, userId], map: "idx_messaging_pricings_package_message_user")
+  @@map("messaging_pricings")
+}
+
+model GatewayCredentials {
+  id           BigInt                        @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId     BigInt?                       @map("agency_id") @db.UnsignedBigInt
+  userId       BigInt?                       @map("user_id") @db.UnsignedBigInt
+  settingKey   String                        @map("setting_key")
+  settingValue String                        @map("setting_value")
+  status       GatewayCredentialStatus       @default(ACTIVE)
+  gatewayType  GatewayCredentialGatewayType? @map("gateway_type")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // 🔗 Relations
+  agency Agency? @relation(fields: [agencyId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_gateway_credentials_agency")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_gateway_credentials_user")
+
+  @@index([agencyId, gatewayType, userId], map: "idx_gateway_credentials_type_agency_user")
+  @@map("gateway_credentials")
+}
+
+model BroadcastSettingsStats {
+  id                 BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  userId             BigInt   @map("user_id") @db.UnsignedBigInt
+  agencyId           BigInt   @map("agency_id") @db.UnsignedBigInt
+  broadcastId        BigInt   @map("broadcast_id") @db.UnsignedBigInt
+  broadcastSettingId BigInt   @map("broadcast_setting_id") @db.UnsignedBigInt
+  totalSent          Int      @default(0) @map("total_sent")
+  totalFailed        Int      @default(0) @map("total_failed")
+  totalRead          Int      @default(0) @map("total_read")
+  totalDelivered     Int      @default(0) @map("total_delivered")
+  totalUndelivered   Int      @default(0) @map("total_undelivered")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @map("updated_at")
+
+  @@unique([broadcastId, broadcastSettingId], map: "uq_broadcast_broadcastSetting")
+  @@index([userId, broadcastSettingId], map: "idx_user_broadcastSetting")
+  @@index([broadcastSettingId], map: "idx_broadcastSetting")
+  @@map("broadcast_settings_stats")
+}
+
+model CacheTriggerEventQueue {
+  id                             BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  userId                         BigInt             @map("user_id") @db.UnsignedBigInt
+  contactId                      BigInt             @map("contact_id") @db.UnsignedBigInt
+  agencyId                       BigInt             @map("agency_id") @db.UnsignedBigInt
+  triggerEventType               String             @map("trigger_event_type") @db.VarChar(100)
+  triggerEventId                 BigInt             @map("trigger_event_id") @db.UnsignedBigInt
+  triggerId                      BigInt?            @map("trigger_id") @db.UnsignedBigInt
+  triggerEventConfigId           BigInt?            @map("trigger_event_config_id") @db.UnsignedBigInt
+  parentCacheTriggerEventQueueId BigInt?            @map("parent_cache_trigger_event_queue_id") @db.UnsignedBigInt
+  status                         TriggerQueueStatus @default(PENDING)
+
+  scheduleAt DateTime @default(now()) @map("schedule_at") @db.DateTime(3)
+
+  failReason String? @default("") @map("fail_reason")
+  payload    Json?   @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // Named indexes
+  @@index([agencyId, userId, triggerId, contactId], name: "idx_event_agency_user_trigger_contact")
+  @@index([status, scheduleAt], name: "idx_event_status_schedule")
+  @@map("cache_trigger_event_queues")
+}
+
+model CacheTriggerEventActionQueue {
+  id                    BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  userId                BigInt             @map("user_id") @db.UnsignedBigInt
+  contactId             BigInt             @map("contact_id") @db.UnsignedBigInt
+  agencyId              BigInt             @map("agency_id") @db.UnsignedBigInt
+  triggerEventType      String             @map("trigger_event_type") @db.VarChar(100)
+  triggerEventId        BigInt             @map("trigger_event_id") @db.UnsignedBigInt
+  triggerId             BigInt             @map("trigger_id") @db.UnsignedBigInt
+  triggerEventConfigId  BigInt             @map("trigger_event_config_id") @db.UnsignedBigInt
+  triggerActionType     String             @map("trigger_action_type") @db.VarChar(100)
+  triggerActionId       BigInt             @map("trigger_action_id") @db.UnsignedBigInt
+  triggerActionConfigId BigInt             @map("trigger_action_config_id") @db.UnsignedBigInt
+  status                TriggerQueueStatus @default(PENDING)
+
+  scheduleAt DateTime @default(now()) @map("schedule_at") @db.DateTime(3)
+
+  failReason String? @default("") @map("fail_reason")
+  payload    Json?   @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  //Named indexes
+  @@index([agencyId, userId, triggerId, contactId], name: "idx_action_agency_user_trigger_contact")
+  @@index([status, scheduleAt], name: "idx_action_status_schedule")
+  @@map("cache_trigger_event_action_queues")
+}
+
+model AssignedWhatsappNumber {
+  id                 BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  agencyId           BigInt   @map("agency_id") @db.UnsignedBigInt
+  userId             BigInt   @map("user_id") @db.UnsignedBigInt
+  waBusinessNumberId BigInt   @map("wa_business_number_id") @db.UnsignedBigInt
+  assignedBy         BigInt?  @map("assigned_by") @db.UnsignedBigInt
+  assignedTo         BigInt   @map("assigned_to") @db.UnsignedBigInt
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // 🔗 Relations
+  waBusinessNumber   WaBusinessNumber @relation(fields: [waBusinessNumberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  user               User             @relation("OwnerUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_assigned_whatsapp_user")
+  agency             Agency           @relation(fields: [agencyId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_assigned_whatsapp_agency")
+
+  assignedByUser     User?            @relation("AssignedBy", fields: [assignedBy], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_assigned_whatsapp_by_user")
+  assignedToUser     User             @relation("AssignedTo", fields: [assignedTo], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_assigned_whatsapp_to_user")
+
+  // 🧩 Indexes & Constraints
+  @@unique([assignedTo, waBusinessNumberId], name: "uniq_assigned_whatsapp")
+  @@index([agencyId, userId, assignedTo], map: "idx_assigned_whatsapp_agency_user_assignedTo")
+  @@map("assigned_whatsapp_numbers")
+}
+
+
+model ContactImportQueueLog {
+  id                    BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  userId                BigInt      @map("user_id") @db.UnsignedBigInt
+  createdBy             BigInt?     @map("created_by") @db.UnsignedBigInt
+  agencyId              BigInt      @map("agency_id") @db.UnsignedBigInt
+  contactId             BigInt?     @map("contact_id") @db.UnsignedBigInt
+  contactImportQueueId  BigInt      @map("contact_import_queue_id") @db.UnsignedBigInt
+
+  number                String?     @db.VarChar(20)
+  firstName             String?     @map("first_name") @db.VarChar(100)
+  lastName              String?     @map("last_name") @db.VarChar(100)
+  email                 String?     @db.VarChar(255)
+  city                  String?     @db.VarChar(190)
+  state                 String?     @db.VarChar(190)
+  country               String?     @db.VarChar(190)
+  countryCode           String?     @map("country_code") @db.VarChar(190)
+  address               String?     @db.Text
+  status                ContactImportQueueLogStatus?
+  birthDate             DateTime?   @map("birth_date") @db.Date
+  anniversaryDate       DateTime?   @map("anniversary_date") @db.Date
+
+  createdAt             DateTime    @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt             DateTime    @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  // RELATIONS
+  contactImportQueue   ContactImportQueue @relation(fields: [contactImportQueueId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_queue_contacts_logs")
+  
+  @@index([userId, contactImportQueueId], map: "idx_userid_contact_import_queue_id")
+  @@index([createdBy, contactImportQueueId], map: "idx_createdby_contact_import_queue_id")
+  @@map("contact_import_queue_logs")
+}
+
+enum ContactImportQueueLogStatus {
+  CREATED
+  INVALID
+  DUPLICATE
+  UPDATED
+}
+
+model GoogleContactLog {
+  id               BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  userId           BigInt        @map("user_id") @db.UnsignedBigInt
+  createdBy        BigInt        @map("created_by") @db.UnsignedBigInt
+  agencyId         BigInt        @map("agency_id") @db.UnsignedBigInt
+  userRequestId    BigInt        @map("user_request_id") @db.UnsignedBigInt
+  contactId        BigInt?       @map("contact_id") @db.UnsignedBigInt
+  number           String?       @db.VarChar(20)
+  country          String?       
+  countryCode      String?       @map("country_code") @db.VarChar(20)
+  firstName        String?       @map("first_name") @db.VarChar(100)
+  lastName         String?       @map("last_name") @db.VarChar(100)
+  email            String?
+  status           GoogleContactLogStatus?
+  invalidReason    String?       @map("invalid_reason")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([userId, userRequestId], map: "idx_userid_user_request_id")
+  @@index([createdBy, userRequestId], map: "idx_createdby_user_request_id")
+  @@map("google_contact_logs")
+}
+
+enum GoogleContactLogStatus {
+  CREATED
+  INVALID
+  DUPLICATE
+  UPDATED
+}

@@ -1,0 +1,315 @@
+import { Injectable } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
+import { PrismaService } from 'nestjs-prisma';
+import { FilterConditionDto } from '../dto/process-trigger.dto';
+import { TriggerValidatorService } from './trigger-validator.service';
+import { TriggerExecutionLogService } from './trigger-execution-log.service';
+import { CacheTriggerEventQueue, TriggerAction, TriggerActionConfig, TriggerQueueStatus, TriggerEventExecutionLogStatus } from '@prisma/client';
+import type { EventKeys } from 'src/types/triggers';
+
+/**
+ * Service for processing real-time trigger event queues.
+ * Main methods at top, helper functions at bottom.
+ */
+@Injectable()
+export class RealtimeTriggerProcessService {
+  constructor(
+    private readonly logger: PinoLogger,
+    private readonly prisma: PrismaService,
+    private readonly triggerValidator: TriggerValidatorService,
+    private readonly triggerExecutionLogService: TriggerExecutionLogService,
+  ) {
+    this.logger.setContext(RealtimeTriggerProcessService.name);
+  }
+
+  /**
+   * Fetches and processes up to 500 pending trigger event queues that are ready to run.
+   */
+  async processRealTimeTrigger(): Promise<void> {
+    this.logger.info('Starting real-time trigger processing');
+
+    const pendingTriggerEventQueues = await this.getPendingTriggerEventQueues();
+    this.logger.info(`Found ${pendingTriggerEventQueues.length} pending trigger event queues`);
+
+    for (const cacheTriggerEventQueue of pendingTriggerEventQueues) {
+      await this.processRealTimeTriggerQueue(cacheTriggerEventQueue);
+    }
+  }
+
+  /**
+   * Processes a single trigger queue entry, validating and executing actions if valid.
+   * @param cacheTriggerEventQueue - The queue entry to process
+   */
+  async processRealTimeTriggerQueue(cacheTriggerEventQueue: CacheTriggerEventQueue): Promise<void> {
+    this.logger.info(`Processing trigger queue ${cacheTriggerEventQueue.id}`);
+
+    if (!cacheTriggerEventQueue.triggerEventConfigId) {
+      const message = `No trigger event config ID for queue ${cacheTriggerEventQueue.id}`;
+      this.logger.error(message);
+      await this.updateQueueStatus(cacheTriggerEventQueue.id, TriggerQueueStatus.FAILED, message);
+      await this.logExecutionFailure(
+        cacheTriggerEventQueue,
+        cacheTriggerEventQueue.triggerEventType as EventKeys,
+        message,
+      );
+      return;
+    }
+
+    await this.updateQueueStatus(cacheTriggerEventQueue.id, TriggerQueueStatus.PROCESSING);
+
+    const triggerEventConfig = await this.getTriggerEventConfig(cacheTriggerEventQueue.triggerEventConfigId);
+    if (!triggerEventConfig) {
+      const message = `No trigger event config found for ID ${cacheTriggerEventQueue.triggerEventConfigId}`;
+      this.logger.error(message);
+      await this.updateQueueStatus(cacheTriggerEventQueue.id, TriggerQueueStatus.FAILED, message);
+      await this.logExecutionFailure(
+        cacheTriggerEventQueue,
+        cacheTriggerEventQueue.triggerEventType as EventKeys,
+        message,
+      );
+      return;
+    }
+
+    const filters = Array.isArray(triggerEventConfig.filters)
+      ? (triggerEventConfig.filters as unknown as FilterConditionDto[])
+      : [];
+
+    const isValid = await this.isValidToExecute(
+      cacheTriggerEventQueue,
+      triggerEventConfig.event.key,
+      filters,
+    );
+
+    if (isValid.success) {
+      const triggerActionConfigs = await this.getTriggerActionConfigs(
+        cacheTriggerEventQueue.agencyId,
+        cacheTriggerEventQueue.userId,
+        cacheTriggerEventQueue.triggerEventConfigId,
+      );
+
+      for (const triggerActionConfig of triggerActionConfigs) {
+        await this.executeTriggerAction(cacheTriggerEventQueue, triggerActionConfig.triggerAction, triggerActionConfig);
+      }
+
+      await this.updateQueueStatus(cacheTriggerEventQueue.id, TriggerQueueStatus.COMPLETED);
+      await this.logExecutionSuccess(
+        cacheTriggerEventQueue,
+        triggerEventConfig.event.key as EventKeys,
+      );
+    } else {
+      const message = `Validation failed: ${isValid.errorMessage}`;
+      await this.updateQueueStatus(cacheTriggerEventQueue.id, TriggerQueueStatus.FAILED, message);
+      await this.logExecutionFailure(
+        cacheTriggerEventQueue,
+        triggerEventConfig.event.key as EventKeys,
+        message,
+      );
+    }
+  }
+
+  /**
+   * Executes a trigger action, creating an action queue entry and logging the execution.
+   * @param cacheTriggerEventQueue - The parent trigger queue
+   * @param triggerAction - The action to execute
+   * @param triggerActionConfig - Configuration for the action
+   */
+  async executeTriggerAction(
+    cacheTriggerEventQueue: CacheTriggerEventQueue,
+    triggerAction: TriggerAction,
+    triggerActionConfig: TriggerActionConfig,
+  ): Promise<void> {
+    this.logger.info(`Executing trigger action ${triggerAction.key}`);
+
+    await this.createTriggerEventActionQueue(
+      this.prisma,
+      cacheTriggerEventQueue,
+      triggerAction,
+      triggerActionConfig,
+    );
+
+    await this.createTriggerEventExecutionLog(
+      this.prisma,
+      cacheTriggerEventQueue,
+      TriggerEventExecutionLogStatus.SUCCESS,
+    );
+  }
+
+  /**
+   * Validates if a trigger queue is eligible to execute by delegating to TriggerValidatorService.
+   * @param cacheTriggerEventQueue - The trigger queue entry
+   * @param eventKey - The event type key
+   * @param filters - Array of filter conditions
+   */
+  private async isValidToExecute(
+    cacheTriggerEventQueue: CacheTriggerEventQueue,
+    eventKey: string,
+    filters: FilterConditionDto[],
+  ): Promise<{ success: boolean; errorMessage: string }> {
+    return this.triggerValidator.validateTrigger(cacheTriggerEventQueue, eventKey, filters);
+  }
+
+  // Helper Methods (grouped at the bottom)
+
+  /**
+   * Fetches up to 500 pending trigger event queues.
+   * @returns Array of pending trigger event queues
+   */
+  private async getPendingTriggerEventQueues(): Promise<CacheTriggerEventQueue[]> {
+    return this.prisma.cacheTriggerEventQueue.findMany({
+      where: {
+        status: TriggerQueueStatus.PENDING,
+        scheduleAt: { lte: new Date() },
+      },
+      take: 500,
+    });
+  }
+
+  /**
+   * Fetches a trigger event config by ID.
+   * @param triggerEventConfigId - Trigger event config ID
+   * @returns Trigger event config or null
+   */
+  private async getTriggerEventConfig(triggerEventConfigId: bigint): Promise<any> {
+    return this.prisma.triggerEventConfig.findFirst({
+      where: { id: triggerEventConfigId },
+      include: { event: { select: { key: true } } },
+    });
+  }
+
+  /**
+   * Fetches trigger action configs for a given trigger event config.
+   * @param agencyId - Agency ID
+   * @param userId - User ID
+   * @param triggerEventConfigId - Trigger event config ID
+   * @returns Array of trigger action configs
+   */
+  private async getTriggerActionConfigs(
+    agencyId: bigint,
+    userId: bigint,
+    triggerEventConfigId: bigint,
+  ): Promise<(TriggerActionConfig & { triggerAction: TriggerAction })[]> {
+    return this.prisma.triggerActionConfig.findMany({
+      where: {
+        agencyId,
+        userId,
+        triggerEventConfigId,
+      },
+      include: { triggerAction: true },
+    });
+  }
+
+  /**
+   * Updates the status of a trigger event queue.
+   * @param queueId - Queue ID
+   * @param status - New status
+   * @param failReason - Optional failure reason
+   */
+  private async updateQueueStatus(queueId: bigint, status: TriggerQueueStatus, failReason?: string): Promise<void> {
+    await this.prisma.cacheTriggerEventQueue.update({
+      where: { id: queueId },
+      data: { status, failReason },
+    });
+  }
+
+  /**
+   * Creates a trigger event action queue entry.
+   * @param prisma - Prisma client
+   * @param cacheTriggerEventQueue - Parent trigger queue
+   * @param triggerAction - Trigger action
+   * @param triggerActionConfig - Trigger action config
+   */
+  private async createTriggerEventActionQueue(
+    prisma: PrismaService,
+    cacheTriggerEventQueue: CacheTriggerEventQueue,
+    triggerAction: TriggerAction,
+    triggerActionConfig: TriggerActionConfig,
+  ): Promise<void> {
+    await prisma.cacheTriggerEventActionQueue.create({
+      data: {
+        userId: cacheTriggerEventQueue.userId,
+        contactId: cacheTriggerEventQueue.contactId,
+        agencyId: cacheTriggerEventQueue.agencyId,
+        triggerEventType: cacheTriggerEventQueue.triggerEventType,
+        triggerEventId: cacheTriggerEventQueue.triggerEventId,
+        triggerId: cacheTriggerEventQueue.triggerId,
+        triggerEventConfigId: cacheTriggerEventQueue.triggerEventConfigId,
+        triggerActionType: triggerAction.key,
+        triggerActionId: triggerAction.id,
+        triggerActionConfigId: triggerActionConfig.id,
+        status: TriggerQueueStatus.PENDING,
+        payload: cacheTriggerEventQueue.payload,
+      },
+    });
+  }
+
+  /**
+   * Creates a trigger event execution log.
+   * @param prisma - Prisma client
+   * @param cacheTriggerEventQueue - Parent trigger queue
+   * @param status - Execution status
+   * @param error - Optional error message
+   */
+  private async createTriggerEventExecutionLog(
+    prisma: PrismaService,
+    cacheTriggerEventQueue: CacheTriggerEventQueue,
+    status: TriggerEventExecutionLogStatus,
+    error: string | null = null,
+  ): Promise<void> {
+    await prisma.triggerEventExecutionLog.create({
+      data: {
+        agencyId: cacheTriggerEventQueue.agencyId,
+        userId: cacheTriggerEventQueue.userId,
+        triggerId: cacheTriggerEventQueue.triggerId,
+        triggerEventId: cacheTriggerEventQueue.triggerEventId,
+        triggerEventConfigId: cacheTriggerEventQueue.triggerEventConfigId,
+        contactId: cacheTriggerEventQueue.contactId,
+        status,
+        error,
+        executedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Logs a successful execution.
+   * @param cacheTriggerEventQueue - Trigger queue
+   * @param eventKey - Event key
+   */
+  private async logExecutionSuccess(
+    cacheTriggerEventQueue: CacheTriggerEventQueue,
+    eventKey: EventKeys,
+  ): Promise<void> {
+    await this.triggerExecutionLogService.eventExecutionLog({
+      triggerId: cacheTriggerEventQueue.triggerId,
+      agencyId: cacheTriggerEventQueue.agencyId,
+      contactId: cacheTriggerEventQueue.contactId,
+      userId: cacheTriggerEventQueue.userId,
+      eventKey,
+      status: TriggerEventExecutionLogStatus.SUCCESS,
+      executionDate: new Date(),
+    });
+  }
+
+  /**
+   * Logs a failed execution.
+   * @param cacheTriggerEventQueue - Trigger queue
+   * @param eventKey - Event key
+   * @param error - Error message
+   */
+  private async logExecutionFailure(
+    cacheTriggerEventQueue: CacheTriggerEventQueue,
+    eventKey: EventKeys,
+    error: string,
+  ): Promise<void> {
+    await this.triggerExecutionLogService.eventExecutionLog({
+      triggerId: cacheTriggerEventQueue.triggerId,
+      agencyId: cacheTriggerEventQueue.agencyId,
+      contactId: cacheTriggerEventQueue.contactId,
+      userId: cacheTriggerEventQueue.userId,
+      eventKey,
+      status: TriggerEventExecutionLogStatus.FAILED,
+      error,
+      executionDate: new Date(),
+    });
+  }
+}

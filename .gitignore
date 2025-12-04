@@ -1,0 +1,66 @@
+# dependencies
+**/node_modules
+node_modules
+/dist/
+#logs
+**/logs
+
+dist
+
+#public resources
+/public
+/tmp
+~/
+# testing
+/coverage
+
+/docker.sh
+
+# misc
+.DS_Store
+.
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
+bun.lock
+pnpm-lock.yaml
+.idea
+.vscode
+
+#docker-env
+docker-env/docker-compose.yml
+/*/docker-env/docker-compose.yml
+/*/*/docker-env/docker-compose.yml
+
+docker-env/seaweedfs-s3-config.json
+/*/docker-env/seaweedfs-s3-config.json
+/*/*/docker-env/seaweedfs-s3-config.json
+
+.env
+#build
+**/build/
+**/dist/
+**/dist-ssr
+
+
+backup.sql
+# Tools
+/*/*/.env
+
+# pnpm
+.pnpm-store
+
+# SonarQube
+.scannerwork
+
+# Files
+.media
+**/media/
+
+
+#coverage 
+coverage
+
+**/coverage/
